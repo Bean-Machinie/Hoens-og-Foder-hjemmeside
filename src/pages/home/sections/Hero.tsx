@@ -1,4 +1,3 @@
-import Button from '@/components/ui/Button';
 import heroImage from '@/assets/images/Hero_Image.webp';
 import { SITE } from '@/config/site';
 import styles from './Hero.module.css';
@@ -25,12 +24,6 @@ function Hero() {
             <p>Søndag: Lukket</p>
           </div>
 
-          <div className={styles.actions}>
-            <Button to="/sortiment">Se sortiment</Button>
-            <Button to="/kontakt" variant="secondary">
-              Kontakt os
-            </Button>
-          </div>
         </div>
       </div>
     </section>

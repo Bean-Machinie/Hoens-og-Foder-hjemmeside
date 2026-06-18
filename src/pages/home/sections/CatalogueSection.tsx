@@ -96,39 +96,40 @@ function CatalogueSection() {
               priser og detaljer.
             </p>
           </header>
-
-          <div className={styles.controls} aria-label="Sortiment carousel">
-            <button
-              aria-label="Forrige vare"
-              className={styles.control}
-              onClick={scrollPrev}
-              type="button"
-            >
-              <span aria-hidden="true" />
-            </button>
-            <button
-              aria-label="Næste vare"
-              className={`${styles.control} ${styles.next}`}
-              onClick={scrollNext}
-              type="button"
-            >
-              <span aria-hidden="true" />
-            </button>
-          </div>
         </div>
 
-        <div className={styles.carousel} ref={emblaRef}>
-          <ul className={styles.track}>
-            {LOOPED_ITEMS.map((item) => (
-              <li key={item.loopKey} className={styles.slide}>
-                <article className={styles.card}>
-                  <div className={styles.thumb} aria-hidden="true" />
-                  <h3 className={styles.cardTitle}>{item.name}</h3>
-                  <p className={styles.cardText}>{item.description}</p>
-                </article>
-              </li>
-            ))}
-          </ul>
+        <div className={styles.carouselShell}>
+          <button
+            aria-label="Forrige vare"
+            className={`${styles.control} ${styles.previous}`}
+            onClick={scrollPrev}
+            type="button"
+          >
+            <span aria-hidden="true" />
+          </button>
+
+          <div className={styles.carousel} ref={emblaRef}>
+            <ul className={styles.track}>
+              {LOOPED_ITEMS.map((item) => (
+                <li key={item.loopKey} className={styles.slide}>
+                  <article className={styles.card}>
+                    <div className={styles.thumb} aria-hidden="true" />
+                    <h3 className={styles.cardTitle}>{item.name}</h3>
+                    <p className={styles.cardText}>{item.description}</p>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <button
+            aria-label="Næste vare"
+            className={`${styles.control} ${styles.next}`}
+            onClick={scrollNext}
+            type="button"
+          >
+            <span aria-hidden="true" />
+          </button>
         </div>
 
         <div className={styles.footer}>
