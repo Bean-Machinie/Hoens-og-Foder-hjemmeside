@@ -13,6 +13,7 @@
 
 .media {
   aspect-ratio: 4 / 3;
+  overflow: hidden;
   border-radius: var(--radius);
   background: radial-gradient(
       circle at 30% 30%,

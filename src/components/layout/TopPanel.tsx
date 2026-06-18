@@ -1,5 +1,6 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import facebookIcon from '@/assets/icons/facebook.svg';
 import { NAV_ITEMS } from '@/config/navigation';
 import { SITE } from '@/config/site';
 import styles from './TopPanel.module.css';
@@ -165,16 +166,7 @@ function TopPanel() {
               rel="noreferrer"
               target="_blank"
             >
-              <span aria-hidden="true">f</span>
-            </a>
-            <a
-              aria-label="Instagram"
-              className={styles.socialLink}
-              href="https://www.instagram.com/"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <span aria-hidden="true">ig</span>
+              <img aria-hidden="true" className={styles.socialIcon} src={facebookIcon} />
             </a>
             <Link className={styles.metaButton} to="/kontakt">
               Kontakt

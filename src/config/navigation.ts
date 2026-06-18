@@ -17,7 +17,6 @@ export type NavItem =
     };
 
 export const NAV_ITEMS: NavItem[] = [
-  { type: 'link', label: 'Hjem', href: '/' },
   {
     type: 'dropdown',
     label: 'Sortiment',
@@ -26,6 +25,19 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Foder', href: '/sortiment#foder' },
       { label: 'Udstyr', href: '/sortiment#udstyr' },
       { label: 'Tilskud', href: '/sortiment#tilskud' },
+    ],
+  },
+  {
+    type: 'dropdown',
+    label: 'Information',
+    items: [
+      { label: 'Nye hønseejere', href: '/information/nye-honseejere' },
+      { label: 'Pasning og trivsel', href: '/information/pasning-og-trivsel' },
+      { label: 'Fodervejledning', href: '/information/fodervejledning' },
+      {
+        label: 'Ofte stillede spørgsmål',
+        href: '/information/ofte-stillede-sporgsmal',
+      },
     ],
   },
   { type: 'link', label: 'Om os', href: '/om-os' },

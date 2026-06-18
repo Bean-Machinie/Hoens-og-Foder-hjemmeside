@@ -28,9 +28,12 @@
 
   /* Layout */
   --content-max-width: 1120px;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 2px 10px rgba(43, 38, 32, 0.08);
+  --radius: 4px;
+  --radius-sm: 4px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.1);
+  --shadow-active: 0 7px 18px rgba(0, 0, 0, 0.1);
+  --shadow-dropdown: 0 18px 45px rgba(0, 0, 0, 0.15);
 
   /* Header */
   --header-height: 4rem;
