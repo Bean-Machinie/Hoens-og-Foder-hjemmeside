@@ -1,0 +1,25 @@
+.footer {
+  margin-top: auto;
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding-block: var(--space-4);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.copy {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}

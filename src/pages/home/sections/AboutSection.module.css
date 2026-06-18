@@ -1,0 +1,38 @@
+.section {
+  padding-block: var(--space-7);
+  background-color: var(--color-surface);
+  border-block: 1px solid var(--color-border);
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.media {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  background: radial-gradient(
+      circle at 30% 30%,
+      #dfe9cf 0%,
+      transparent 60%
+    ),
+    linear-gradient(135deg, #eef3e3 0%, #e3ecd4 100%);
+  box-shadow: var(--shadow);
+}
+
+.content {
+  max-width: 52ch;
+}
+
+@media (max-width: 760px) {
+  .inner {
+    grid-template-columns: 1fr;
+  }
+
+  .media {
+    order: -1;
+  }
+}
