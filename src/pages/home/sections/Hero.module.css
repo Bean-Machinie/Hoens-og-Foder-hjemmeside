@@ -1,4 +1,6 @@
 .hero {
+  --hero-image-inset: clamp(4rem, 8vw, 10rem);
+
   position: relative;
   isolation: isolate;
   min-height: clamp(460px, 70svh, 620px);
@@ -7,11 +9,22 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.hero::after {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  z-index: 0;
+  width: var(--hero-image-inset);
+  background: var(--color-surface);
+  content: '';
+  pointer-events: none;
+}
+
 .imageWrap {
   position: absolute;
-  right: clamp(4rem, 8vw, 10rem);
+  right: var(--hero-image-inset);
   bottom: -2%;
-  z-index: -1;
+  z-index: 0;
   height: 112%;
   aspect-ratio: 1065 / 865;
   overflow: hidden;
@@ -23,10 +36,7 @@
     rgba(0, 0, 0, 0.12) 5%,
     rgba(0, 0, 0, 0.5) 14%,
     #000 26%,
-    #000 76%,
-    rgba(0, 0, 0, 0.5) 88%,
-    rgba(0, 0, 0, 0.12) 96%,
-    transparent 100%
+    #000 100%
   );
   mask-image: linear-gradient(
     90deg,
@@ -34,10 +44,7 @@
     rgba(0, 0, 0, 0.12) 5%,
     rgba(0, 0, 0, 0.5) 14%,
     #000 26%,
-    #000 76%,
-    rgba(0, 0, 0, 0.5) 88%,
-    rgba(0, 0, 0, 0.12) 96%,
-    transparent 100%
+    #000 100%
   );
 }
 
@@ -55,6 +62,22 @@
   content: '';
 }
 
+.imageWrap::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 68%,
+      color-mix(in srgb, var(--color-surface) 18%, transparent) 78%,
+      color-mix(in srgb, var(--color-surface) 62%, transparent) 90%,
+      var(--color-surface) 100%
+    );
+  content: '';
+}
+
 .image {
   width: 100%;
   height: 100%;
@@ -64,6 +87,8 @@
 }
 
 .inner {
+  position: relative;
+  z-index: 2;
   width: 100%;
   max-width: none;
   min-height: inherit;
