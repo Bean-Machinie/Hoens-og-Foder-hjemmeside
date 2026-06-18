@@ -1,18 +1,33 @@
-/**
- * Central navigation config.
- * The top panel and the router both read from this list, so adding a page
- * is a one-line change here plus a route in App.tsx.
- */
-export interface NavItem {
-  /** Route path used by React Router. */
-  path: string;
-  /** Label shown in the top panel. */
+export interface NavMenuItem {
   label: string;
+  href: string;
+  dividerAfter?: boolean;
 }
 
+export type NavItem =
+  | {
+      type: 'link';
+      label: string;
+      href: string;
+    }
+  | {
+      type: 'dropdown';
+      label: string;
+      items: NavMenuItem[];
+    };
+
 export const NAV_ITEMS: NavItem[] = [
-  { path: '/', label: 'Hjem' },
-  { path: '/sortiment', label: 'Sortiment' },
-  { path: '/om-os', label: 'Om os' },
-  { path: '/kontakt', label: 'Kontakt' },
+  { type: 'link', label: 'Hjem', href: '/' },
+  {
+    type: 'dropdown',
+    label: 'Sortiment',
+    items: [
+      { label: 'Alt sortiment', href: '/sortiment', dividerAfter: true },
+      { label: 'Foder', href: '/sortiment#foder' },
+      { label: 'Udstyr', href: '/sortiment#udstyr' },
+      { label: 'Tilskud', href: '/sortiment#tilskud' },
+    ],
+  },
+  { type: 'link', label: 'Om os', href: '/om-os' },
+  { type: 'link', label: 'Kontakt', href: '/kontakt' },
 ];
