@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
 import Button from '@/components/ui/Button';
 import styles from './CatalogueSection.module.css';
 
@@ -7,7 +9,6 @@ interface CatalogueItem {
   description: string;
 }
 
-/** Placeholder catalogue items — replace with real products later. */
 const ITEMS: CatalogueItem[] = [
   {
     id: 'laegfoder',
@@ -31,29 +32,121 @@ const ITEMS: CatalogueItem[] = [
   },
 ];
 
+const LOOPED_ITEMS = Array.from({ length: 3 }, (_, setIndex) =>
+  ITEMS.map((item) => ({
+    ...item,
+    loopKey: `${item.id}-${setIndex}`,
+  })),
+).flat();
+
 function CatalogueSection() {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'start',
+    loop: true,
+    skipSnaps: false,
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollPrev = useCallback(() => {
+    emblaApi?.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    emblaApi?.scrollNext();
+  }, [emblaApi]);
+
+  const scrollTo = useCallback(
+    (index: number) => {
+      emblaApi?.scrollTo(index);
+    },
+    [emblaApi],
+  );
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) {
+      return;
+    }
+
+    setSelectedIndex(emblaApi.selectedScrollSnap() % ITEMS.length);
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) {
+      return;
+    }
+
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
   return (
     <section id="sortiment" className={styles.section}>
       <div className="container">
-        <header className={styles.header}>
-          <h2>Vores sortiment</h2>
-          <p className={styles.intro}>
-            Et udvalg af vores mest populære varer. Se hele sortimentet for
-            priser og detaljer.
-          </p>
-        </header>
+        <div className={styles.top}>
+          <header className={styles.header}>
+            <h2>Vores sortiment</h2>
+            <p className={styles.intro}>
+              Et udvalg af vores mest populære varer. Se hele sortimentet for
+              priser og detaljer.
+            </p>
+          </header>
 
-        <ul className={styles.grid}>
-          {ITEMS.map((item) => (
-            <li key={item.id} className={styles.card}>
-              <div className={styles.thumb} aria-hidden="true" />
-              <h3 className={styles.cardTitle}>{item.name}</h3>
-              <p className={styles.cardText}>{item.description}</p>
-            </li>
-          ))}
-        </ul>
+          <div className={styles.controls} aria-label="Sortiment carousel">
+            <button
+              aria-label="Forrige vare"
+              className={styles.control}
+              onClick={scrollPrev}
+              type="button"
+            >
+              <span aria-hidden="true" />
+            </button>
+            <button
+              aria-label="Næste vare"
+              className={`${styles.control} ${styles.next}`}
+              onClick={scrollNext}
+              type="button"
+            >
+              <span aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.carousel} ref={emblaRef}>
+          <ul className={styles.track}>
+            {LOOPED_ITEMS.map((item) => (
+              <li key={item.loopKey} className={styles.slide}>
+                <article className={styles.card}>
+                  <div className={styles.thumb} aria-hidden="true" />
+                  <h3 className={styles.cardTitle}>{item.name}</h3>
+                  <p className={styles.cardText}>{item.description}</p>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <div className={styles.footer}>
+          <div className={styles.dots} aria-label="Vælg sortiment-slide">
+            {ITEMS.map((item, index) => (
+              <button
+                aria-label={`Gå til slide ${index + 1}`}
+                aria-current={selectedIndex === index ? 'true' : undefined}
+                className={`${styles.dot} ${
+                  selectedIndex === index ? styles.dotActive : ''
+                }`}
+                key={item.id}
+                onClick={() => scrollTo(index)}
+                type="button"
+              />
+            ))}
+          </div>
+
           <Button to="/sortiment">Se hele sortimentet</Button>
         </div>
       </div>
