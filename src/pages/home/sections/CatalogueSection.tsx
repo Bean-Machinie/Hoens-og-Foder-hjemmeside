@@ -88,10 +88,9 @@ function CatalogueSection() {
       <div className="container">
         <div className={styles.top}>
           <header className={styles.header}>
-            <h2>Vores sortiment</h2>
+            <h2>Hvad leder du efter i dag?</h2>
             <p className={styles.intro}>
-              Et udvalg af vores mest populære varer. Se hele sortimentet for
-              priser og detaljer.
+              Klik på en kategori og gå på opdagelse i butikken.
             </p>
           </header>
         </div>
@@ -147,7 +146,7 @@ function CatalogueSection() {
             ))}
           </div>
 
-          <Button to="/sortiment">Se hele sortimentet</Button>
+          <Button to="/sortiment">Se hele Udvalget</Button>
         </div>
       </div>
     </section>
