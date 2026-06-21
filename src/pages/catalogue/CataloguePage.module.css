@@ -1,3 +1,56 @@
 .section {
   padding-block: var(--space-6);
 }
+
+.count {
+  margin-bottom: var(--space-4);
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #f3f3f3;
+}
+
+.body {
+  padding: var(--space-3);
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.category {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.price {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+}
