@@ -18,13 +18,10 @@ function TopPanel() {
   const navRef = useRef<HTMLElement | null>(null);
   const triggerRefs = useRef<Record<string, HTMLAnchorElement | HTMLButtonElement | null>>({});
   const menuItemRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const revealHighlightFrame = useRef<number | null>(null);
+  const hoveredNavLabel = useRef<string | null>(null);
   const [openNavMenu, setOpenNavMenu] = useState<string | null>(null);
   const [hoverHighlight, setHoverHighlight] = useState<HighlightState>({
-    left: 0,
-    width: 0,
-    visible: false,
-  });
-  const [openHighlight, setOpenHighlight] = useState<HighlightState>({
     left: 0,
     width: 0,
     visible: false,
@@ -34,20 +31,78 @@ function TopPanel() {
     const navElement = navRef.current;
     const triggerElement = triggerRefs.current[label];
 
-    if (!navElement || !triggerElement) {
+    if (!navElement || !triggerElement || !triggerElement.isConnected) {
       return null;
     }
 
     const navRect = navElement.getBoundingClientRect();
     const triggerRect = triggerElement.getBoundingClientRect();
+    const left = triggerRect.left - navRect.left - HIGHLIGHT_PADDING;
+    const width = triggerRect.width + HIGHLIGHT_PADDING * 2;
 
-    return {
-      left: triggerRect.left - navRect.left - HIGHLIGHT_PADDING,
-      width: triggerRect.width + HIGHLIGHT_PADDING * 2,
-      visible: true,
-    };
+    if (
+      !Number.isFinite(left) ||
+      !Number.isFinite(width) ||
+      width <= 0 ||
+      left < -HIGHLIGHT_PADDING ||
+      left + width > navRect.width + HIGHLIGHT_PADDING
+    ) {
+      return null;
+    }
+
+    return { left, width, visible: true };
   };
 
+  const showNavHighlight = (label: string) => {
+    const nextHighlight = getNavItemHighlight(label);
+
+    if (!nextHighlight) {
+      return;
+    }
+
+    if (revealHighlightFrame.current !== null) {
+      window.cancelAnimationFrame(revealHighlightFrame.current);
+    }
+
+    setHoverHighlight((current) => {
+      if (current.visible) {
+        return nextHighlight;
+      }
+
+      return { ...nextHighlight, visible: false };
+    });
+
+    revealHighlightFrame.current = window.requestAnimationFrame(() => {
+      revealHighlightFrame.current = window.requestAnimationFrame(() => {
+        setHoverHighlight((current) => ({ ...current, visible: true }));
+        revealHighlightFrame.current = null;
+      });
+    });
+  };
+
+  const hideNavHighlight = () => {
+    if (revealHighlightFrame.current !== null) {
+      window.cancelAnimationFrame(revealHighlightFrame.current);
+      revealHighlightFrame.current = null;
+    }
+
+    setHoverHighlight((current) => ({ ...current, visible: false }));
+  };
+
+  const handleNavPointerEnter = (label: string) => {
+    hoveredNavLabel.current = label;
+    showNavHighlight(label);
+  };
+
+  const handleNavPointerLeave = () => {
+    hoveredNavLabel.current = null;
+
+    if (openNavMenu) {
+      showNavHighlight(openNavMenu);
+    } else {
+      hideNavHighlight();
+    }
+  };
   const isLinkActive = (href: string) => {
     const [pathname] = href.split('#');
     return pathname === '/'
@@ -62,8 +117,12 @@ function TopPanel() {
 
   const closeNavMenu = () => {
     setOpenNavMenu(null);
-    setHoverHighlight((current) => ({ ...current, visible: false }));
-    setOpenHighlight((current) => ({ ...current, visible: false }));
+
+    if (hoveredNavLabel.current) {
+      showNavHighlight(hoveredNavLabel.current);
+    } else {
+      hideNavHighlight();
+    }
   };
 
   const focusFirstMenuItem = (label: string) => {
@@ -72,22 +131,15 @@ function TopPanel() {
     });
   };
 
-  const handleNavPointerMove = (label: string) => {
-    if (openNavMenu === label) {
-      setHoverHighlight((current) => ({ ...current, visible: false }));
-      return;
-    }
-
-    const nextHighlight = getNavItemHighlight(label);
-
-    if (nextHighlight) {
-      setHoverHighlight(nextHighlight);
-    }
-  };
-
   const handleDropdownClick = (label: string) => {
-    setOpenNavMenu((current) => (current === label ? null : label));
-    setHoverHighlight((current) => ({ ...current, visible: false }));
+    const nextOpenMenu = openNavMenu === label ? null : label;
+    setOpenNavMenu(nextOpenMenu);
+
+    if (nextOpenMenu) {
+      showNavHighlight(nextOpenMenu);
+    } else if (!hoveredNavLabel.current) {
+      hideNavHighlight();
+    }
   };
 
   const handleDropdownKeyDown = (
@@ -97,6 +149,7 @@ function TopPanel() {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
       setOpenNavMenu(label);
+      showNavHighlight(label);
       focusFirstMenuItem(label);
     }
 
@@ -119,19 +172,6 @@ function TopPanel() {
   };
 
   useEffect(() => {
-    if (!openNavMenu) {
-      setOpenHighlight((current) => ({ ...current, visible: false }));
-      return;
-    }
-
-    const nextHighlight = getNavItemHighlight(openNavMenu);
-
-    if (nextHighlight) {
-      setOpenHighlight(nextHighlight);
-    }
-  }, [openNavMenu, location.pathname]);
-
-  useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
       if (navRef.current?.contains(event.target as Node)) {
         return;
@@ -147,6 +187,15 @@ function TopPanel() {
   useEffect(() => {
     closeNavMenu();
   }, [location.pathname, location.hash]);
+
+  useEffect(
+    () => () => {
+      if (revealHighlightFrame.current !== null) {
+        window.cancelAnimationFrame(revealHighlightFrame.current);
+      }
+    },
+    [],
+  );
 
   return (
     <header className={styles.header}>
@@ -178,7 +227,7 @@ function TopPanel() {
       <nav
         aria-label="Hovedmenu"
         className={styles.navBar}
-        onPointerLeave={() => setHoverHighlight((current) => ({ ...current, visible: false }))}
+        onPointerLeave={handleNavPointerLeave}
         ref={navRef}
       >
         <span
@@ -191,16 +240,6 @@ function TopPanel() {
             width: hoverHighlight.width,
           }}
         />
-        <span
-          aria-hidden="true"
-          className={`${styles.navOpenHighlight} ${
-            openHighlight.visible ? styles.navHighlightVisible : ''
-          }`}
-          style={{
-            transform: `translateX(${openHighlight.left}px)`,
-            width: openHighlight.width,
-          }}
-        />
 
         <div className={styles.navScroller}>
           <ul className={styles.navList}>
@@ -211,7 +250,7 @@ function TopPanel() {
                     className={`${styles.navLink} ${
                       isLinkActive(item.href) ? styles.active : ''
                     }`}
-                    onPointerMove={() => handleNavPointerMove(item.label)}
+                    onPointerEnter={() => handleNavPointerEnter(item.label)}
                     ref={(element) => {
                       triggerRefs.current[item.label] = element;
                     }}
@@ -229,7 +268,7 @@ function TopPanel() {
                       }`}
                       onClick={() => handleDropdownClick(item.label)}
                       onKeyDown={(event) => handleDropdownKeyDown(event, item.label)}
-                      onPointerMove={() => handleNavPointerMove(item.label)}
+                      onPointerEnter={() => handleNavPointerEnter(item.label)}
                       ref={(element) => {
                         triggerRefs.current[item.label] = element;
                       }}
@@ -242,6 +281,7 @@ function TopPanel() {
                       <div
                         className={styles.dropdown}
                         onKeyDown={(event) => handleMenuKeyDown(event, item.label)}
+                        onPointerEnter={() => handleNavPointerEnter(item.label)}
                         role="menu"
                       >
                         {item.items.map((menuItem, index) => (

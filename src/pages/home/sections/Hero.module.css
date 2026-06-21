@@ -111,7 +111,7 @@
   font-weight: 800;
   letter-spacing: 0;
   line-height: 0.98;
-  margin-bottom: var(--space-4);
+  margin-bottom: clamp(2rem, 3vw, 2.75rem);
 }
 
 .hours {
