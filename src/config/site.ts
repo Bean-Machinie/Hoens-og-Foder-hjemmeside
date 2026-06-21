@@ -5,8 +5,13 @@
 export const SITE = {
   name: 'Høns og Foder',
   tagline: 'Kvalitetsfoder og udstyr til dine høns',
-  phone: '+45 00 00 00 00',
-  email: 'kontakt@hoensogfoder.dk',
-  address: 'Gårdvej 1, 1234 Landsby',
-  openingHours: 'Man–fre 9–17 · Lør 9–13',
+  phone: '+45 51 28 58 58',
+  email: 'hoensogfoder@gmail.com',
+  address: 'Bundsvej 16, 3660 Stenløse',
+  /** Opening hours, one row per group of days. */
+  openingHours: [
+    { days: 'Mandag–fredag', hours: '9–17' },
+    { days: 'Lørdag', hours: '9–13' },
+    { days: 'Søndag', hours: 'Lukket' },
+  ],
 } as const;

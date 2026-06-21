@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: var(--color-surface);
+  background-color: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   font-family: var(--font-body);

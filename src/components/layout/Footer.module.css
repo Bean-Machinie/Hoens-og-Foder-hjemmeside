@@ -1,25 +1,175 @@
 .footer {
   margin-top: auto;
-  background-color: var(--color-surface);
+  background-color: var(--color-bg);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 12px,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 12px,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 24px
+  );
   border-top: 1px solid var(--color-border);
-  padding-block: var(--space-4);
+  padding-block: var(--space-6) var(--space-4);
 }
 
 .inner {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--space-5);
 }
 
+/* ---- Brand / tagline ---- */
+.intro {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Matches the site's display font: body font, heavy weight (like hero + categories). */
 .brand {
-  font-family: var(--font-heading);
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
   color: var(--color-primary-dark);
+}
+
+.tagline {
+  margin: var(--space-2) 0 0;
+  max-width: 42ch;
+  color: var(--color-text-muted);
+  font-size: 0.98rem;
+}
+
+/* ---- Details: contact + opening hours ----
+   A heading row sits above each list. The contact column's heading slot is an
+   empty spacer, so the first contact row (Telefon) lines up with the first
+   hours row (Mandag–fredag). */
+.details {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-areas:
+    'contactHead hoursHead'
+    'contact     hours';
+  column-gap: var(--space-6);
+  row-gap: var(--space-3);
+  align-items: start;
+}
+
+.headSpacer {
+  grid-area: contactHead;
+}
+
+.hoursHeading {
+  grid-area: hoursHead;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.contact {
+  grid-area: contact;
+  margin: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.contactRow {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.value {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.value a {
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.value a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+/* ---- Opening hours ---- */
+.hours {
+  grid-area: hours;
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+  max-width: 22rem;
+}
+
+.hoursRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+}
+
+.hoursRow:last-child {
+  border-bottom: 0;
+}
+
+.hoursDays {
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.hoursTime {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---- Bottom copyright bar ---- */
+.bottom {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
 }
 
 .copy {
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .details {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'contact'
+      'hoursHead'
+      'hours';
+    row-gap: var(--space-4);
+  }
+
+  .headSpacer {
+    display: none;
+  }
+
+  .contactRow {
+    grid-template-columns: 5.5rem 1fr;
+  }
 }
