@@ -298,7 +298,17 @@ function TopPanel() {
                             tabIndex={0}
                             to={menuItem.href}
                           >
-                            {menuItem.label}
+                            {menuItem.icon ? (
+                              <img
+                                alt=""
+                                aria-hidden="true"
+                                className={`${styles.dropdownIcon} ${
+                                  menuItem.iconEmphasis ? styles.dropdownIconEmphasis : ''
+                                }`}
+                                src={menuItem.icon}
+                              />
+                            ) : null}
+                            <span>{menuItem.label}</span>
                           </Link>
                         ))}
                       </div>

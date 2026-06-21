@@ -93,7 +93,7 @@
   overflow: hidden;
   margin-block: -32px -52px;
   padding-block: 32px 52px;
-  cursor: grab;
+  cursor: pointer;
   user-select: none;
   -webkit-mask-image: linear-gradient(
     90deg,
