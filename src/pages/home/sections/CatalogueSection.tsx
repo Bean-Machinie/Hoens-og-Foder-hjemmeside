@@ -97,7 +97,15 @@ function CatalogueSection() {
                   className={styles.slide}
                 >
                   <article className={styles.card}>
-                    <div className={styles.thumb} aria-hidden="true" />
+                    <img
+                      alt=""
+                      aria-hidden="true"
+                      className={styles.thumb}
+                      decoding="async"
+                      draggable={false}
+                      loading="lazy"
+                      src={item.image}
+                    />
                     <div className={styles.cardBody}>
                       <h3 className={styles.cardTitle}>{item.name}</h3>
                     </div>

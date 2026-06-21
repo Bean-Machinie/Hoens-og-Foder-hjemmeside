@@ -55,9 +55,9 @@
   background:
     linear-gradient(
       90deg,
-      rgba(168, 95, 32, 0.18) 0%,
-      rgba(168, 95, 32, 0.08) 34%,
-      rgba(168, 95, 32, 0) 62%
+      color-mix(in srgb, var(--color-primary-dark) 18%, transparent) 0%,
+      color-mix(in srgb, var(--color-primary-dark) 8%, transparent) 34%,
+      transparent 62%
     );
   content: '';
 }
@@ -146,9 +146,9 @@
     background:
       linear-gradient(
         90deg,
-      rgba(168, 95, 32, 0.94) 0%,
-      rgba(168, 95, 32, 0.82) 52%,
-      rgba(168, 95, 32, 0.42) 100%
+      color-mix(in srgb, var(--color-primary-dark) 94%, transparent) 0%,
+      color-mix(in srgb, var(--color-primary-dark) 82%, transparent) 52%,
+      color-mix(in srgb, var(--color-primary-dark) 42%, transparent) 100%
       );
   }
 
