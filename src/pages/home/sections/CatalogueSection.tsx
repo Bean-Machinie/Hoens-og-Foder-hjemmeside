@@ -39,7 +39,7 @@ const ITEMS: CatalogueItem[] = [
 
 function CatalogueSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: (_viewSize, snapSize) => snapSize / 2,
+    align: 'center',
     loop: true,
     skipSnaps: false,
   });
@@ -55,7 +55,19 @@ function CatalogueSection() {
 
   const scrollTo = useCallback(
     (index: number) => {
-      emblaApi?.scrollTo(index);
+      if (!emblaApi) {
+        return;
+      }
+
+      const currentIndex = emblaApi.selectedScrollSnap();
+      const matchingSlides = [index, index + ITEMS.length];
+      const nearestSlide = matchingSlides.reduce((nearest, candidate) =>
+        Math.abs(candidate - currentIndex) < Math.abs(nearest - currentIndex)
+          ? candidate
+          : nearest,
+      );
+
+      emblaApi.scrollTo(nearestSlide);
     },
     [emblaApi],
   );
@@ -65,7 +77,7 @@ function CatalogueSection() {
       return;
     }
 
-    setSelectedIndex(emblaApi.selectedScrollSnap());
+    setSelectedIndex(emblaApi.selectedScrollSnap() % ITEMS.length);
   }, [emblaApi]);
 
   useEffect(() => {
@@ -107,8 +119,12 @@ function CatalogueSection() {
 
           <div className={styles.carousel} ref={emblaRef}>
             <ul className={styles.track}>
-              {ITEMS.map((item) => (
-                <li key={item.id} className={styles.slide}>
+              {[...ITEMS, ...ITEMS].map((item, index) => (
+                <li
+                  aria-hidden={index >= ITEMS.length ? 'true' : undefined}
+                  key={`${item.id}-${index}`}
+                  className={styles.slide}
+                >
                   <article className={styles.card}>
                     <div className={styles.thumb} aria-hidden="true" />
                     <div className={styles.cardBody}>

@@ -250,6 +250,20 @@
   transform: scale(1.04);
 }
 
+@media (min-width: 1200px) {
+  .carouselShell {
+    width: min(calc(100vw - 3rem), 1500px);
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 1400px) {
+  .slide {
+    flex-basis: 20%;
+  }
+}
+
 @media (max-width: 900px) {
   .slide {
     flex-basis: 33.333%;
