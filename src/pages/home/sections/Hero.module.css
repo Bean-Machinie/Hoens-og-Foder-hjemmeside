@@ -125,8 +125,14 @@
   margin: 0;
 }
 
-.hoursTitle {
+.hours .hoursTitle {
   font-weight: 800;
+  margin-bottom: var(--space-3);
+}
+
+.hoursList {
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 980px) {

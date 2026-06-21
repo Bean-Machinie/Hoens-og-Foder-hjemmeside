@@ -1,4 +1,4 @@
-import { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NAV_ITEMS } from '@/config/navigation';
 import { SITE } from '@/config/site';
@@ -26,6 +26,32 @@ function TopPanel() {
     width: 0,
     visible: false,
   });
+
+  const scrollToHash = (hash: string) => {
+    const id = hash.replace('#', '');
+    const target = id ? document.getElementById(id) : null;
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleNavLinkClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    if (!href.includes('#')) {
+      return;
+    }
+
+    const [path, hash] = href.split('#');
+    const targetPath = path || '/';
+
+    // Same page: smooth-scroll to the section without touching the URL.
+    if (location.pathname === targetPath) {
+      event.preventDefault();
+      scrollToHash(`#${hash}`);
+    }
+    // Other page: let <Link> navigate to "/#kontakt"; the effect below
+    // scrolls once the home page (and its footer) have mounted.
+  };
 
   const getNavItemHighlight = (label: string): HighlightState | null => {
     const navElement = navRef.current;
@@ -104,7 +130,15 @@ function TopPanel() {
     }
   };
   const isLinkActive = (href: string) => {
-    const [pathname] = href.split('#');
+    const [pathname, hash] = href.split('#');
+
+    if (hash) {
+      return (
+        location.pathname === (pathname || '/') &&
+        location.hash === `#${hash}`
+      );
+    }
+
     return pathname === '/'
       ? location.pathname === '/'
       : location.pathname === pathname;
@@ -188,6 +222,27 @@ function TopPanel() {
     closeNavMenu();
   }, [location.pathname, location.hash]);
 
+  useEffect(() => {
+    if (location.pathname !== '/' || !location.hash) {
+      return;
+    }
+
+    const hash = location.hash;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        const id = hash.replace('#', '');
+        const target = id ? document.getElementById(id) : null;
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [location.pathname, location.hash]);
+
   useEffect(
     () => () => {
       if (revealHighlightFrame.current !== null) {
@@ -239,6 +294,7 @@ function TopPanel() {
                     className={`${styles.navLink} ${
                       isLinkActive(item.href) ? styles.active : ''
                     }`}
+                    onClick={(event) => handleNavLinkClick(event, item.href)}
                     onPointerEnter={() => handleNavPointerEnter(item.label)}
                     ref={(element) => {
                       triggerRefs.current[item.label] = element;

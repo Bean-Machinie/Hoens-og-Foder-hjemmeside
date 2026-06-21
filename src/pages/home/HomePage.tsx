@@ -1,12 +1,13 @@
 import Hero from './sections/Hero';
 import CatalogueSection from './sections/CatalogueSection';
 import AboutSection from './sections/AboutSection';
+import Footer from '@/components/layout/Footer';
 import styles from './HomePage.module.css';
 
 /**
  * Home page. Composes the page from its sections in order:
- * hero → catalogue → store information and directions.
- * Contact details and opening hours now live in the site footer.
+ * hero → catalogue → store information and directions → footer with
+ * contact details and opening hours.
  */
 function HomePage() {
   return (
@@ -14,6 +15,7 @@ function HomePage() {
       <Hero />
       <CatalogueSection />
       <AboutSection />
+      <Footer />
     </div>
   );
 }

@@ -58,5 +58,5 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { type: 'link', label: 'Om os', href: '/om-os' },
-  { type: 'link', label: 'Kontakt', href: '/kontakt' },
+  { type: 'link', label: 'Kontakt', href: '/#kontakt' },
 ];

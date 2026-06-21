@@ -15,11 +15,14 @@ function Hero() {
 
           <div className={styles.hours}>
             <p className={styles.hoursTitle}>Åbningstider:</p>
-            <p>Man - Fre: 16:00 - 19:00</p>
-            <p>Lørdag: 9:00 - 14:00</p>
-            <p>Søndag: Lukket</p>
+            <div className={styles.hoursList}>
+              {SITE.openingHours.map((row) => (
+                <p key={row.days}>
+                  {row.days}: {row.hours}
+                </p>
+              ))}
+            </div>
           </div>
-
         </div>
       </div>
     </section>
