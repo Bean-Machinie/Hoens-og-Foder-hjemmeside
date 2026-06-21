@@ -20,14 +20,20 @@ function AboutSection() {
         </div>
 
         <div className={styles.content}>
-          <h2>Velkommen til vores lille gårdbutik på landet</h2>
+          <h2>Velkommen til Høns og Foder</h2>
           <p>
-            Vores hyggelige gårdbutik er fyldt med foder, høns, udstyr og gode
-            råd.
+            I vores gårdbutik finder du høns, foder og udstyr til både nye og
+            erfarne dyreejere. Vi sælger foder til høns, hunde og katte samt
+            udstyr og andre varer til pasning og pleje af dyr.
           </p>
           <p>
-            Du er altid velkommen til at kigge forbi – vi hjælper både
-            nybegyndere og erfarne dyrevenner.
+            Hos os kan du finde det, du skal bruge i hverdagen, uanset om du
+            allerede har dyr derhjemme eller skal i gang med høns for første
+            gang.
+          </p>
+          <p>
+            Kig forbi butikken og se udvalget. Vi hjælper dig med at finde det
+            rigtige foder, det rette udstyr eller de høns, der passer til dig.
           </p>
         </div>
 
