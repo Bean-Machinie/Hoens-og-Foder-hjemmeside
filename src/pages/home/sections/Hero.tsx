@@ -12,10 +12,6 @@ function Hero() {
       <div className={`container ${styles.inner}`}>
         <div className={styles.content}>
           <h1 className={styles.title}>{SITE.name}</h1>
-          <p className={styles.subtitle}>
-            Hos os finder du alt det du skal bruge: Høns, Kvalitetsfoder, og
-            Personlig vejledning
-          </p>
 
           <div className={styles.hours}>
             <p className={styles.hoursTitle}>Åbningstider:</p>

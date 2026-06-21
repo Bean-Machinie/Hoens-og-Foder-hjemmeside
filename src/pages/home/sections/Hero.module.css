@@ -114,19 +114,10 @@
   margin-bottom: var(--space-4);
 }
 
-.subtitle {
-  max-width: 28ch;
-  color: #fff;
-  font-size: clamp(1.25rem, 1.75vw, 1.7rem);
-  font-weight: 750;
-  line-height: 1.28;
-  margin-bottom: var(--space-6);
-}
-
 .hours {
   color: #fff;
-  font-size: clamp(1.15rem, 1.65vw, 1.55rem);
-  line-height: 1.22;
+  font-size: clamp(1.4rem, 2vw, 1.85rem);
+  line-height: 1.28;
   margin-bottom: var(--space-5);
 }
 
@@ -181,11 +172,7 @@
     padding-block: var(--space-6);
   }
 
-  .subtitle {
-    font-size: 1.25rem;
-  }
-
   .hours {
-    font-size: 1.15rem;
+    font-size: 1.3rem;
   }
 }
