@@ -1,8 +1,8 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import facebookIcon from '@/assets/icons/facebook.svg';
 import { NAV_ITEMS } from '@/config/navigation';
 import { SITE } from '@/config/site';
+import FacebookFollowCallout from '@/components/ui/FacebookFollowCallout';
 import styles from './TopPanel.module.css';
 
 interface HighlightState {
@@ -208,18 +208,7 @@ function TopPanel() {
           </Link>
 
           <div className={styles.metaArea}>
-            <a
-              aria-label="Facebook"
-              className={styles.socialLink}
-              href="https://www.facebook.com/"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <img aria-hidden="true" className={styles.socialIcon} src={facebookIcon} />
-            </a>
-            <Link className={styles.metaButton} to="/kontakt">
-              Kontakt
-            </Link>
+            <FacebookFollowCallout />
           </div>
         </div>
       </div>
