@@ -6,7 +6,7 @@ import styles from './HomePage.module.css';
 
 /**
  * Home page. Composes the page from its sections in order:
- * hero → catalogue → about → information.
+ * hero → catalogue → store information and directions → contact information.
  */
 function HomePage() {
   return (
