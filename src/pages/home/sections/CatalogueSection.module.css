@@ -77,8 +77,8 @@
 
 .carousel {
   overflow: hidden;
-  margin-block: -8px;
-  padding-block: 8px;
+  margin: -36px;
+  padding: 36px;
 }
 
 .track {
@@ -89,30 +89,46 @@
 
 .slide {
   min-width: 0;
-  flex: 0 0 33.333%;
+  flex: 0 0 25%;
   padding-left: var(--space-4);
 }
 
 .card {
-  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 3 / 4.4;
   overflow: hidden;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 24px;
   box-shadow: var(--shadow);
   transition:
-    box-shadow 180ms ease,
-    transform 180ms ease;
-  transform-origin: center;
+    border-color 260ms ease,
+    box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  content: '';
+  pointer-events: none;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-4px) scale(1.025);
+  border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  box-shadow:
+    0 22px 44px rgba(43, 38, 32, 0.14),
+    0 5px 12px rgba(43, 38, 32, 0.08);
+  transform: translateY(-8px);
 }
 
 .thumb {
-  aspect-ratio: 4 / 3;
+  flex: 1 1 auto;
+  min-height: 0;
   background: repeating-linear-gradient(
     135deg,
     #f1e8d9,
@@ -123,7 +139,7 @@
 }
 
 .cardBody {
-  min-height: 112px;
+  flex: 0 0 29%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,7 +199,7 @@
 
 @media (max-width: 900px) {
   .slide {
-    flex-basis: 50%;
+    flex-basis: 33.333%;
   }
 }
 
@@ -203,7 +219,11 @@
   }
 
   .slide {
-    flex-basis: 86%;
+    flex-basis: 72%;
+  }
+
+  .card {
+    aspect-ratio: 4 / 5.3;
   }
 
   .previous {
@@ -222,5 +242,15 @@
 
   .next:hover {
     transform: translateY(-50%) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: box-shadow 160ms ease;
+  }
+
+  .card:hover {
+    transform: none;
   }
 }

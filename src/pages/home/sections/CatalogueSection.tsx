@@ -30,18 +30,16 @@ const ITEMS: CatalogueItem[] = [
     name: 'Udstyr',
     description: 'Drikkekar, foderautomater og redekasser.',
   },
+  {
+    id: 'tilbehoer',
+    name: 'Tilbehør',
+    description: 'Praktisk tilbehør til hønseholdet.',
+  },
 ];
-
-const LOOPED_ITEMS = Array.from({ length: 3 }, (_, setIndex) =>
-  ITEMS.map((item) => ({
-    ...item,
-    loopKey: `${item.id}-${setIndex}`,
-  })),
-).flat();
 
 function CatalogueSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
+    align: (viewSize, snapSize) => (viewSize - snapSize) * 0.06,
     loop: true,
     skipSnaps: false,
   });
@@ -67,7 +65,7 @@ function CatalogueSection() {
       return;
     }
 
-    setSelectedIndex(emblaApi.selectedScrollSnap() % ITEMS.length);
+    setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
   useEffect(() => {
@@ -110,8 +108,8 @@ function CatalogueSection() {
 
           <div className={styles.carousel} ref={emblaRef}>
             <ul className={styles.track}>
-              {LOOPED_ITEMS.map((item) => (
-                <li key={item.loopKey} className={styles.slide}>
+              {ITEMS.map((item) => (
+                <li key={item.id} className={styles.slide}>
                   <article className={styles.card}>
                     <div className={styles.thumb} aria-hidden="true" />
                     <div className={styles.cardBody}>
