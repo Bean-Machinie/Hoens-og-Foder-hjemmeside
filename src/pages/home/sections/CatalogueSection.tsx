@@ -39,7 +39,7 @@ const ITEMS: CatalogueItem[] = [
 
 function CatalogueSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: (viewSize, snapSize) => (viewSize - snapSize) * 0.06,
+    align: (_viewSize, snapSize) => snapSize / 2,
     loop: true,
     skipSnaps: false,
   });
