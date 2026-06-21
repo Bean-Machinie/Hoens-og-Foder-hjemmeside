@@ -77,6 +77,8 @@
 
 .carousel {
   overflow: hidden;
+  margin-block: -8px;
+  padding-block: 8px;
 }
 
 .track {
@@ -96,22 +98,21 @@
   overflow: hidden;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-bottom: 16px solid var(--color-accent);
-  border-radius: var(--radius);
+  border-radius: 24px;
   box-shadow: var(--shadow);
   transition:
     box-shadow 180ms ease,
     transform 180ms ease;
+  transform-origin: center;
 }
 
 .card:hover {
   box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.025);
 }
 
 .thumb {
   aspect-ratio: 4 / 3;
-  margin-bottom: var(--space-3);
   background: repeating-linear-gradient(
     135deg,
     #f1e8d9,
@@ -119,26 +120,25 @@
     #ece1cd 12px,
     #ece1cd 24px
   );
-  transform: scale(1.01);
-  transition: transform 180ms ease;
 }
 
-.card:hover .thumb {
-  transform: scale(1.07);
+.cardBody {
+  min-height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: var(--color-surface);
 }
 
 .cardTitle {
-  font-size: 1.15rem;
-  margin-bottom: var(--space-1);
-  padding-inline: var(--space-4);
-}
-
-.cardText {
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 0;
-  padding-inline: var(--space-4);
-  padding-bottom: var(--space-4);
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
 }
 
 .footer {

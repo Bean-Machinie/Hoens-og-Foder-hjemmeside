@@ -114,8 +114,9 @@ function CatalogueSection() {
                 <li key={item.loopKey} className={styles.slide}>
                   <article className={styles.card}>
                     <div className={styles.thumb} aria-hidden="true" />
-                    <h3 className={styles.cardTitle}>{item.name}</h3>
-                    <p className={styles.cardText}>{item.description}</p>
+                    <div className={styles.cardBody}>
+                      <h3 className={styles.cardTitle}>{item.name}</h3>
+                    </div>
                   </article>
                 </li>
               ))}

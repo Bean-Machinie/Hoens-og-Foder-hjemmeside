@@ -1,0 +1,4 @@
+.page {
+  /* Give home-page sections a little more room without widening other pages. */
+  --content-max-width: 1200px;
+}
