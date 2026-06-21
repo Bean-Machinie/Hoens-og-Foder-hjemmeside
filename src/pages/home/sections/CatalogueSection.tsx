@@ -1,41 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Button from '@/components/ui/Button';
+import { PRODUCT_CATEGORIES } from '@/config/categories';
 import styles from './CatalogueSection.module.css';
-
-interface CatalogueItem {
-  id: string;
-  name: string;
-  description: string;
-}
-
-const ITEMS: CatalogueItem[] = [
-  {
-    id: 'laegfoder',
-    name: 'Lægfoder',
-    description: 'Komplet foder til æglæggende høner.',
-  },
-  {
-    id: 'kyllingefoder',
-    name: 'Kyllingefoder',
-    description: 'Næringsrigt opstartsfoder til kyllinger.',
-  },
-  {
-    id: 'tilskud',
-    name: 'Tilskud & grit',
-    description: 'Skaller, grit og vitaminer til en sund flok.',
-  },
-  {
-    id: 'udstyr',
-    name: 'Udstyr',
-    description: 'Drikkekar, foderautomater og redekasser.',
-  },
-  {
-    id: 'tilbehoer',
-    name: 'Tilbehør',
-    description: 'Praktisk tilbehør til hønseholdet.',
-  },
-];
 
 function CatalogueSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -60,7 +27,7 @@ function CatalogueSection() {
       }
 
       const currentIndex = emblaApi.selectedScrollSnap();
-      const matchingSlides = [index, index + ITEMS.length];
+      const matchingSlides = [index, index + PRODUCT_CATEGORIES.length];
       const nearestSlide = matchingSlides.reduce((nearest, candidate) =>
         Math.abs(candidate - currentIndex) < Math.abs(nearest - currentIndex)
           ? candidate
@@ -77,7 +44,9 @@ function CatalogueSection() {
       return;
     }
 
-    setSelectedIndex(emblaApi.selectedScrollSnap() % ITEMS.length);
+    setSelectedIndex(
+      emblaApi.selectedScrollSnap() % PRODUCT_CATEGORIES.length,
+    );
   }, [emblaApi]);
 
   useEffect(() => {
@@ -119,9 +88,11 @@ function CatalogueSection() {
 
           <div className={styles.carousel} ref={emblaRef}>
             <ul className={styles.track}>
-              {[...ITEMS, ...ITEMS].map((item, index) => (
+              {[...PRODUCT_CATEGORIES, ...PRODUCT_CATEGORIES].map((item, index) => (
                 <li
-                  aria-hidden={index >= ITEMS.length ? 'true' : undefined}
+                  aria-hidden={
+                    index >= PRODUCT_CATEGORIES.length ? 'true' : undefined
+                  }
                   key={`${item.id}-${index}`}
                   className={styles.slide}
                 >
@@ -148,7 +119,7 @@ function CatalogueSection() {
 
         <div className={styles.footer}>
           <div className={styles.dots} aria-label="Vælg sortiment-slide">
-            {ITEMS.map((item, index) => (
+            {PRODUCT_CATEGORIES.map((item, index) => (
               <button
                 aria-label={`Gå til slide ${index + 1}`}
                 aria-current={selectedIndex === index ? 'true' : undefined}
