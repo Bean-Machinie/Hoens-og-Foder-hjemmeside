@@ -14,12 +14,43 @@
 }
 
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
+}
+
+.soldOut .image {
+  opacity: 0.58;
+  filter: grayscale(35%);
+}
+
+.status {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.newProduct {
+  background: #31724b;
+}
+
+.orderOnly {
+  background: #8a5a16;
+}
+
+.temporarilySoldOut {
+  background: #7b3535;
 }
 
 .image {
@@ -49,8 +80,8 @@
   font-weight: 600;
 }
 
-.description {
+.barcode {
   margin: 0;
-  font-size: 0.9rem;
-  color: #444;
+  font-size: 0.78rem;
+  color: #666;
 }

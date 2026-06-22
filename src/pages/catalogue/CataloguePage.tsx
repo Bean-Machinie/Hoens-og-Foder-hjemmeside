@@ -57,8 +57,25 @@ function CataloguePage() {
               {products.map((product, index) => (
                 <article
                   key={`${product.title}-${index}`}
-                  className={styles.card}
+                  className={`${styles.card} ${
+                    product.status === 'Midlertidigt udsolgt'
+                      ? styles.soldOut
+                      : ''
+                  }`}
                 >
+                  {product.status && (
+                    <span
+                      className={`${styles.status} ${
+                        product.status === 'Nyhed'
+                          ? styles.newProduct
+                          : product.status === 'Bestillingsvare'
+                            ? styles.orderOnly
+                            : styles.temporarilySoldOut
+                      }`}
+                    >
+                      {product.status}
+                    </span>
+                  )}
                   <img
                     className={styles.image}
                     src={product.imageUrl || placeholderImage}
@@ -75,9 +92,9 @@ function CataloguePage() {
                     <h2 className={styles.title}>{product.title}</h2>
                     <p className={styles.category}>{product.category}</p>
                     <p className={styles.price}>{product.price}</p>
-                    {product.description && (
-                      <p className={styles.description}>
-                        {product.description}
+                    {product.barcode && product.barcode !== '-' && (
+                      <p className={styles.barcode}>
+                        Stregkode: {product.barcode}
                       </p>
                     )}
                   </div>

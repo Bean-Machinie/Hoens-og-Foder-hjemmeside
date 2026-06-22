@@ -8,17 +8,46 @@
 
 /** Published Google Sheets CSV (File → Share → Publish to web → CSV). */
 export const INVENTORY_CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vT6WaOandMt_yh74KZ4dM8DCKg8PNzTmGZYP45fPkt1qpU_BX6Hs7k0_10Rh_yTx9N1DJ_uXMqQRi8J/pub?gid=0&single=true&output=csv';
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRA8r74-ifqfq6h7tAbu7g-VqR08qY5QlAN-2bxgOVE-cnMebEYstBWSs9LJChhu55NlXbbR-uVF_L7/pub?output=csv';
 
 export interface Product {
   title: string;
   category: string;
+  barcode: string;
   description: string;
   price: string;
-  unit: string;
-  availability: string;
+  status: ProductStatus;
   visible: boolean;
   imageUrl: string;
+}
+
+export type ProductStatus =
+  | 'Nyhed'
+  | 'Bestillingsvare'
+  | 'Midlertidigt udsolgt'
+  | '';
+
+const WEBSITE_CATEGORY_BY_SHEET_CATEGORY: Record<string, string> = {
+  'HØNS - FODER': 'Foder',
+  'HØNS - SUNDHED': 'Sundhed',
+  'HØNS - UDSTYR': 'Udstyr',
+  'HØNS - TRIVSEL': 'Trivsel',
+  'HØNS - STALD': 'Stald',
+  'TILBEHØR - FODER': 'Udstyr',
+  'HØNS - DIVERSE': 'Diverse',
+  'TILBEHØR - STALD': 'Stald',
+  'VILDTFUGLE - TILBEHØR': 'Vildtfugle',
+  'VILDTFUGLE - FODER': 'Vildtfugle',
+  HØNS: 'Høns',
+  GNAVER: 'Diverse',
+  HANE: 'Høns',
+  KYLLINGER: 'Høns',
+  DIVERSE: 'Diverse',
+};
+
+export function toWebsiteCategory(sheetCategory: string): string {
+  const normalized = sheetCategory.trim().toLocaleUpperCase('da-DK');
+  return WEBSITE_CATEGORY_BY_SHEET_CATEGORY[normalized] ?? 'Diverse';
 }
 
 /**
@@ -98,12 +127,17 @@ function parseCsv(text: string): Record<string, string>[] {
  *   https://drive.google.com/uc?id=FILE_ID
  */
 export function toDirectImageUrl(url: string): string {
-  if (!url) {
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) {
     return '';
   }
 
-  const fileMatch = url.match(/\/file\/d\/([^/]+)/);
-  const queryMatch = url.match(/[?&]id=([^&]+)/);
+  // Also accept a URL pasted as a Markdown link: [URL](URL).
+  const markdownMatch = trimmedUrl.match(/^\[[^\]]*\]\((https?:\/\/[^)]+)\)$/);
+  const imageUrl = markdownMatch?.[1] ?? trimmedUrl;
+
+  const fileMatch = imageUrl.match(/\/file\/d\/([^/]+)/);
+  const queryMatch = imageUrl.match(/[?&]id=([^&]+)/);
   const fileId = fileMatch?.[1] ?? queryMatch?.[1];
 
   if (fileId) {
@@ -111,11 +145,22 @@ export function toDirectImageUrl(url: string): string {
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
   }
 
-  return url;
+  return imageUrl;
 }
 
 function toBoolean(value: string): boolean {
   return value.trim().toUpperCase() === 'TRUE';
+}
+
+function toProductStatus(value: string): ProductStatus {
+  const normalized = value.trim().toLocaleLowerCase('da-DK');
+  const statuses: Record<string, ProductStatus> = {
+    nyhed: 'Nyhed',
+    bestillingsvare: 'Bestillingsvare',
+    'midlertidigt udsolgt': 'Midlertidigt udsolgt',
+  };
+
+  return statuses[normalized] ?? '';
 }
 
 /** Fetch the CSV and return every parsed product (visible and hidden). */
@@ -127,13 +172,13 @@ export async function fetchProducts(): Promise<Product[]> {
 
   const csv = await response.text();
   return parseCsv(csv).map((row) => ({
-    title: row.title ?? '',
-    category: row.category ?? '',
-    description: row.description ?? '',
-    price: row.price ?? '',
-    unit: row.unit ?? '',
-    availability: row.availability ?? '',
-    visible: toBoolean(row.visible ?? ''),
+    title: row.Navn ?? '',
+    category: toWebsiteCategory(row.Kategori ?? ''),
+    barcode: row.Stregkode ?? '',
+    price: row.Pris ?? '',
+    description: row.Beskrivelse ?? '',
+    status: toProductStatus(row.Status ?? ''),
+    visible: toBoolean(row.Synlighed ?? ''),
     imageUrl: toDirectImageUrl(row.imageUrl ?? ''),
   }));
 }
