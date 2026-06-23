@@ -238,7 +238,17 @@ function ReserveAction({ product }: ReserveActionProps) {
 
         <Dialog.Portal>
           <Dialog.Overlay className={styles.overlay} />
-          <Dialog.Content className={styles.panel} aria-describedby={undefined}>
+          <Dialog.Content
+            className={styles.panel}
+            aria-describedby={undefined}
+            onClick={(event) => {
+              // The content fills the screen, so a click on the backdrop area
+              // lands on this element itself — treat that as "click outside".
+              if (event.target === event.currentTarget) {
+                handleOpenChange(false);
+              }
+            }}
+          >
             <div className={styles.panelInner}>
               <div className={styles.panelHead}>
                 <div>
@@ -278,7 +288,7 @@ function ReserveAction({ product }: ReserveActionProps) {
                         }`}
                         type="text"
                         autoComplete="name"
-                        placeholder="Dit fulde navn"
+                        placeholder="John Doe"
                         value={name}
                         onChange={(event) => setName(event.target.value)}
                       />
@@ -393,7 +403,7 @@ function ReserveAction({ product }: ReserveActionProps) {
 
                   <div className={styles.field}>
                     <label className={styles.label} htmlFor={`${fieldId}-email`}>
-                      E-mail <span className={styles.optional}>(valgfri)</span>
+                      E-mail <span className={styles.optional}></span>
                     </label>
                     <input
                       id={`${fieldId}-email`}
@@ -408,7 +418,7 @@ function ReserveAction({ product }: ReserveActionProps) {
 
                   <div className={styles.field}>
                     <label className={styles.label} htmlFor={`${fieldId}-message`}>
-                      Besked <span className={styles.optional}>(valgfri)</span>
+                      Besked <span className={styles.optional}></span>
                     </label>
                     <textarea
                       id={`${fieldId}-message`}

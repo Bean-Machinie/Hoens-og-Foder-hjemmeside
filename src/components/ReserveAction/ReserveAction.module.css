@@ -1,4 +1,3 @@
-/* --- Inline page actions ------------------------------------------------ */
 .actions {
   display: flex;
   flex-direction: column;
@@ -70,7 +69,6 @@
   color: var(--color-primary-dark);
 }
 
-/* --- Dialog overlay + panel --------------------------------------------- */
 .overlay {
   position: fixed;
   inset: 0;
@@ -163,7 +161,6 @@
   background: color-mix(in srgb, var(--color-border) 75%, transparent);
 }
 
-/* --- Form --------------------------------------------------------------- */
 .form {
   display: flex;
   flex-direction: column;
@@ -243,7 +240,6 @@
   font-size: 0.85rem;
 }
 
-/* --- Phone field (react-international-phone) ----------------------------- */
 .phoneWrap {
   --react-international-phone-height: 44px;
   --react-international-phone-font-size: 1rem;
@@ -252,18 +248,10 @@
   --react-international-phone-background-color: var(--color-surface);
   --react-international-phone-text-color: var(--color-text);
   --react-international-phone-country-selector-background-color: var(--color-surface);
-  --react-international-phone-country-selector-background-color-hover: color-mix(
-    in srgb,
-    var(--color-primary) 8%,
-    transparent
-  );
+  --react-international-phone-country-selector-background-color-hover: color-mix(in srgb, var(--color-primary) 8%, transparent);
   --react-international-phone-country-selector-arrow-color: var(--color-text-muted);
   --react-international-phone-dropdown-item-background-color: var(--color-surface);
-  --react-international-phone-selected-dropdown-item-background-color: color-mix(
-    in srgb,
-    var(--color-primary) 14%,
-    transparent
-  );
+  --react-international-phone-selected-dropdown-item-background-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 
 .phoneWrap :global(.react-international-phone-input-container) {
@@ -279,17 +267,18 @@
 
 .phoneWrap :global(.react-international-phone-country-selector-button) {
   border-radius: 10px 0 0 10px;
+  padding-left: 10px;
 }
 
-/* The country list popup, rounded + shadowed to match the rest of the UI. */
 .phoneWrap :global(.react-international-phone-country-selector-dropdown) {
   border-radius: 12px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-dropdown);
-  overflow: hidden;
+  max-height: 240px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* --- Pickup date: segmented control ------------------------------------- */
 .segment {
   display: flex;
   gap: 0.6rem;
@@ -336,7 +325,6 @@
   color: #fff;
 }
 
-/* --- Calendar popover (MUI X DateCalendar) ------------------------------ */
 .calendarPopover {
   position: fixed;
   z-index: 300;
@@ -355,7 +343,6 @@
   }
 }
 
-/* --- Tooltip ------------------------------------------------------------ */
 .infoButton {
   display: inline-flex;
   align-items: center;
@@ -404,7 +391,6 @@
   }
 }
 
-/* --- Submit ------------------------------------------------------------- */
 .submitButton {
   width: 100%;
   min-height: 52px;
@@ -433,7 +419,6 @@
   transform: translateY(0);
 }
 
-/* --- Success ------------------------------------------------------------ */
 .success {
   display: flex;
   flex-direction: column;
