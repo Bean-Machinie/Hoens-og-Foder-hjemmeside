@@ -80,9 +80,6 @@
   animation: overlayIn 180ms ease;
 }
 
-/* Full-screen scroll + centering container. No transform here, so the
-   calendar's position:fixed works relative to the viewport and the phone
-   dropdown isn't clipped by a small box. */
 .panel {
   position: fixed;
   inset: 0;
@@ -94,7 +91,7 @@
 
 .panelInner {
   margin: auto;
-  width: min(560px, 100%);
+  width: min(680px, 100%);
   padding: clamp(var(--space-4), 3vw, var(--space-5));
   background-color: var(--color-surface);
   border-radius: 18px;
@@ -277,6 +274,19 @@
   flex: 1;
   width: 100%;
   font-family: inherit;
+  border-radius: 0 10px 10px 0;
+}
+
+.phoneWrap :global(.react-international-phone-country-selector-button) {
+  border-radius: 10px 0 0 10px;
+}
+
+/* The country list popup, rounded + shadowed to match the rest of the UI. */
+.phoneWrap :global(.react-international-phone-country-selector-dropdown) {
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-dropdown);
+  overflow: hidden;
 }
 
 /* --- Pickup date: segmented control ------------------------------------- */

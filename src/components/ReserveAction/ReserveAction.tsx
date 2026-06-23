@@ -90,6 +90,7 @@ function ReserveAction({ product }: ReserveActionProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarPos, setCalendarPos] = useState({ top: 0, left: 0 });
   const segmentRef = useRef<HTMLDivElement>(null);
+  const dateButtonRef = useRef<HTMLButtonElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const telHref = `tel:${SITE.phone.replace(/\s+/g, '')}`;
@@ -103,7 +104,8 @@ function ReserveAction({ product }: ReserveActionProps) {
   const formValid = nameValid && phoneValid && dateValid;
 
   const positionCalendar = () => {
-    const rect = segmentRef.current?.getBoundingClientRect();
+    // Anchor to the "Vælg dag" button so the calendar drops down from it.
+    const rect = dateButtonRef.current?.getBoundingClientRect();
     if (!rect) {
       return;
     }
@@ -116,7 +118,12 @@ function ReserveAction({ product }: ReserveActionProps) {
       overflowsBottom && rect.top - calHeight - margin > 0
         ? rect.top - calHeight - margin
         : below;
-    const left = Math.min(rect.left, window.innerWidth - calWidth - margin);
+    // Right-align the calendar with the button, then clamp to the viewport.
+    const preferredLeft = rect.right - calWidth;
+    const left = Math.min(
+      Math.max(margin, preferredLeft),
+      window.innerWidth - calWidth - margin,
+    );
     setCalendarPos({ top, left: Math.max(margin, left) });
   };
 
@@ -342,6 +349,7 @@ function ReserveAction({ product }: ReserveActionProps) {
                         }
                         aria-haspopup="dialog"
                         aria-expanded={calendarOpen}
+                        ref={dateButtonRef}
                       >
                         <CalendarIcon />
                         <span>
