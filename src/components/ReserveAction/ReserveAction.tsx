@@ -1,14 +1,23 @@
-import { useId, useState, type FormEvent } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
-import { DayPicker } from 'react-day-picker';
+import { PhoneInput } from 'react-international-phone';
+import { isValidPhoneNumber } from 'libphonenumber-js';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { format, startOfToday } from 'date-fns';
 import { da } from 'date-fns/locale';
 import { SITE } from '@/config/site';
 import type { Product } from '@/pages/catalogue/inventory';
-import 'react-phone-number-input/style.css';
-import 'react-day-picker/style.css';
+import 'react-international-phone/style.css';
 import styles from './ReserveAction.module.css';
 
 interface ReserveActionProps {
@@ -16,6 +25,13 @@ interface ReserveActionProps {
 }
 
 type PickupMode = 'today' | 'pick';
+
+const muiTheme = createTheme({
+  palette: {
+    primary: { main: '#5592a7', dark: '#477b8d' },
+  },
+  typography: { fontFamily: 'inherit' },
+});
 
 function PhoneCallIcon() {
   return (
@@ -44,23 +60,8 @@ function CalendarIcon() {
       viewBox="0 0 16 16"
       focusable="false"
     >
-      <rect
-        x="2"
-        y="3"
-        width="12"
-        height="11"
-        rx="2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-      />
-      <path
-        d="M2 6h12M5.5 1.5v3M10.5 1.5v3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
+      <rect x="2" y="3" width="12" height="11" rx="2" fill="none" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M2 6h12M5.5 1.5v3M10.5 1.5v3" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -73,22 +74,8 @@ function ClockIcon() {
       viewBox="0 0 16 16"
       focusable="false"
     >
-      <circle
-        cx="8"
-        cy="8"
-        r="6.2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-      />
-      <path
-        d="M8 4.6V8l2.3 1.6"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M8 4.6V8l2.3 1.6" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -97,12 +84,7 @@ function InfoIcon() {
   return (
     <svg viewBox="0 0 16 16" focusable="false" aria-hidden="true">
       <circle cx="8" cy="8" r="7" fill="currentColor" />
-      <path
-        d="M8 7v4"
-        stroke="#fff"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+      <path d="M8 7v4" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
       <circle cx="8" cy="4.7" r="1" fill="#fff" />
     </svg>
   );
@@ -119,12 +101,17 @@ function ReserveAction({ product }: ReserveActionProps) {
   const [submitted, setSubmitted] = useState(false);
 
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState<string | undefined>(undefined);
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [pickupMode, setPickupMode] = useState<PickupMode>('today');
   const [pickedDate, setPickedDate] = useState<Date | undefined>(undefined);
   const [showErrors, setShowErrors] = useState(false);
+
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarPos, setCalendarPos] = useState({ top: 0, left: 0 });
+  const segmentRef = useRef<HTMLDivElement>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const telHref = `tel:${SITE.phone.replace(/\s+/g, '')}`;
   const today = startOfToday();
@@ -136,21 +123,79 @@ function ReserveAction({ product }: ReserveActionProps) {
   const dateValid = Boolean(pickupDate);
   const formValid = nameValid && phoneValid && dateValid;
 
+  const positionCalendar = () => {
+    const rect = segmentRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
+    const calHeight = 360;
+    const margin = 8;
+    const below = rect.bottom + margin;
+    const overflowsBottom = below + calHeight > window.innerHeight;
+    const top =
+      overflowsBottom && rect.top - calHeight - margin > 0
+        ? rect.top - calHeight - margin
+        : below;
+    setCalendarPos({ top, left: rect.left });
+  };
+
+  const openCalendar = () => {
+    setPickupMode('pick');
+    positionCalendar();
+    setCalendarOpen(true);
+  };
+
+  useEffect(() => {
+    if (!calendarOpen) {
+      return;
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (
+        calendarRef.current?.contains(target) ||
+        segmentRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setCalendarOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        setCalendarOpen(false);
+      }
+    };
+    const onReflow = () => positionCalendar();
+
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('scroll', onReflow, true);
+    window.addEventListener('resize', onReflow);
+
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onKeyDown, true);
+      window.removeEventListener('scroll', onReflow, true);
+      window.removeEventListener('resize', onReflow);
+    };
+  }, [calendarOpen]);
+
   const resetForm = () => {
     setSubmitted(false);
     setShowErrors(false);
     setName('');
-    setPhone(undefined);
+    setPhone('');
     setEmail('');
     setMessage('');
     setPickupMode('today');
     setPickedDate(undefined);
+    setCalendarOpen(false);
   };
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
     if (!next) {
-      // Reset after the close animation so reopening starts fresh.
       window.setTimeout(resetForm, 200);
     }
   };
@@ -182,9 +227,6 @@ function ReserveAction({ product }: ReserveActionProps) {
       name,
     ].join('\n');
 
-    // TODO: replace with a POST to a form/email service (Formspree, Netlify
-    // Forms, a serverless endpoint, …) for in-page delivery without opening
-    // the customer's mail client.
     window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent(
       subject,
     )}&body=${encodeURIComponent(body)}`;
@@ -216,17 +258,9 @@ function ReserveAction({ product }: ReserveActionProps) {
                 </Dialog.Title>
                 <p className={styles.panelSubtitle}>{product.title}</p>
               </div>
-              <Dialog.Close
-                className={styles.closeButton}
-                aria-label="Luk"
-              >
+              <Dialog.Close className={styles.closeButton} aria-label="Luk">
                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                  <path
-                    d="M4 4 12 12 M12 4 4 12"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
+                  <path d="M4 4 12 12 M12 4 4 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                 </svg>
               </Dialog.Close>
             </div>
@@ -239,9 +273,7 @@ function ReserveAction({ product }: ReserveActionProps) {
                   <strong>{product.title}</strong>. Tryk send, så vender vi
                   tilbage hurtigst muligt.
                 </p>
-                <Dialog.Close className={styles.successClose}>
-                  Luk
-                </Dialog.Close>
+                <Dialog.Close className={styles.successClose}>Luk</Dialog.Close>
               </div>
             ) : (
               <form className={styles.form} onSubmit={handleSubmit} noValidate>
@@ -268,18 +300,19 @@ function ReserveAction({ product }: ReserveActionProps) {
                       Telefon <span className={styles.req}>*</span>
                     </label>
                     <div
-                      className={`${styles.phoneField} ${
+                      className={`${styles.phoneWrap} ${
                         showErrors && !phoneValid ? styles.inputError : ''
                       }`}
                     >
                       <PhoneInput
-                        id={`${fieldId}-phone`}
-                        international
-                        defaultCountry="DK"
-                        countryCallingCodeEditable={false}
-                        placeholder="Tlf. nummer"
+                        defaultCountry="dk"
                         value={phone}
-                        onChange={setPhone}
+                        onChange={(value) => setPhone(value)}
+                        placeholder="Tlf. nummer"
+                        inputProps={{
+                          id: `${fieldId}-phone`,
+                          autoComplete: 'tel',
+                        }}
                       />
                     </div>
                   </div>
@@ -313,13 +346,16 @@ function ReserveAction({ product }: ReserveActionProps) {
                     </Tooltip.Provider>
                   </span>
 
-                  <div className={styles.segment}>
+                  <div className={styles.segment} ref={segmentRef}>
                     <button
                       type="button"
                       className={`${styles.segmentButton} ${
                         pickupMode === 'today' ? styles.segmentActive : ''
                       }`}
-                      onClick={() => setPickupMode('today')}
+                      onClick={() => {
+                        setPickupMode('today');
+                        setCalendarOpen(false);
+                      }}
                       aria-pressed={pickupMode === 'today'}
                     >
                       <ClockIcon />
@@ -330,8 +366,11 @@ function ReserveAction({ product }: ReserveActionProps) {
                       className={`${styles.segmentButton} ${
                         pickupMode === 'pick' ? styles.segmentActive : ''
                       }`}
-                      onClick={() => setPickupMode('pick')}
-                      aria-pressed={pickupMode === 'pick'}
+                      onClick={() =>
+                        calendarOpen ? setCalendarOpen(false) : openCalendar()
+                      }
+                      aria-haspopup="dialog"
+                      aria-expanded={calendarOpen}
                     >
                       <CalendarIcon />
                       <span>
@@ -342,19 +381,32 @@ function ReserveAction({ product }: ReserveActionProps) {
                     </button>
                   </div>
 
-                  {pickupMode === 'pick' && (
-                    <div className={styles.calendarWrap}>
-                      <DayPicker
-                        className={styles.calendar}
-                        mode="single"
-                        selected={pickedDate}
-                        onSelect={(date) => setPickedDate(date)}
-                        disabled={{ before: today }}
-                        startMonth={today}
-                        locale={da}
-                        weekStartsOn={1}
-                        showOutsideDays
-                      />
+                  {calendarOpen && (
+                    <div
+                      ref={calendarRef}
+                      className={styles.calendarPopover}
+                      style={{ top: calendarPos.top, left: calendarPos.left }}
+                      role="dialog"
+                      aria-label="Vælg afhentningsdag"
+                    >
+                      <ThemeProvider theme={muiTheme}>
+                        <LocalizationProvider
+                          dateAdapter={AdapterDateFns}
+                          adapterLocale={da}
+                        >
+                          <DateCalendar
+                            value={pickedDate ?? null}
+                            onChange={(date: Date | null) => {
+                              setPickedDate(date ?? undefined);
+                              setPickupMode('pick');
+                              if (date) {
+                                setCalendarOpen(false);
+                              }
+                            }}
+                            disablePast
+                          />
+                        </LocalizationProvider>
+                      </ThemeProvider>
                     </div>
                   )}
 
