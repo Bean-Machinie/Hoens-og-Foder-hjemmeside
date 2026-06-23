@@ -320,8 +320,61 @@
   }
 }
 
+/* --- Loading skeleton --------------------------------------------------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-border) 60%, transparent);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0,
+    color-mix(in srgb, var(--color-surface) 85%, transparent) 50%,
+    transparent 100%
+  );
+  animation: barSkeletonShimmer 1.4s ease-in-out infinite;
+}
+
+/* Same footprint as the real .trigger pill (min-height 42px). */
+.skeletonTrigger {
+  width: 122px;
+  height: 42px;
+  border-radius: 999px;
+}
+
+/* Mirrors .count: pushed to the right, drops full-width under 640px. */
+.skeletonCount {
+  margin-left: auto;
+  width: 104px;
+  height: 0.9rem;
+  border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+  .skeletonCount {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+@keyframes barSkeletonShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .menu {
+    animation: none;
+  }
+
+  .skeleton::after {
     animation: none;
   }
 

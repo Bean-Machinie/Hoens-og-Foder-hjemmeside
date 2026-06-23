@@ -95,27 +95,100 @@
 }
 
 .body {
+  /* Fixed height so every card is identical regardless of how long the
+     title is or whether a barcode is present. The square image above is
+     the same width (and therefore height) in every grid column, so a
+     constant body height makes the whole card a constant size. */
+  height: 8rem;
   padding: var(--space-3);
+  overflow: hidden;
 }
 
 .title {
   margin: 0 0 0.25rem;
   font-size: 1rem;
+  line-height: 1.3;
+  /* Always reserve two lines; clamp longer titles with an ellipsis so a
+     long name never pushes the card taller than its neighbours. */
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .category {
   margin: 0 0 0.25rem;
   font-size: 0.85rem;
   color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .price {
-  margin: 0 0 0.5rem;
+  margin: 0;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.barcode {
-  margin: 0;
-  font-size: 0.78rem;
-  color: #666;
+/* --- Loading skeletons ------------------------------------------------ */
+
+.skeletonCard {
+  /* Keep the same footprint as a real card so the grid doesn't jump. */
+  pointer-events: none;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #ececec;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 100%
+  );
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+.skeletonLine {
+  border-radius: 4px;
+  height: 0.85rem;
+}
+
+.skeletonTitle {
+  width: 75%;
+  height: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.skeletonCategory {
+  width: 50%;
+  margin-bottom: 0.6rem;
+}
+
+.skeletonPrice {
+  width: 35%;
+}
+
+@keyframes skeletonShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
 }

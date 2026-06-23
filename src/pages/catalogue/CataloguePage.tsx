@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import PageHeader from '@/components/ui/PageHeader';
 import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import {
   CATEGORY_IDS,
@@ -9,7 +8,11 @@ import {
 import { fetchProducts, type Product } from './inventory';
 import { useCategoryFilter } from './useCategoryFilter';
 import CategoryFilterBar from './CategoryFilterBar';
+import FilterBarSkeleton from './FilterBarSkeleton';
 import styles from './CataloguePage.module.css';
+
+/** Number of placeholder cards shown while the inventory is loading. */
+const SKELETON_COUNT = 8;
 
 /** Build a { categoryId: count } map across all visible products. */
 function countByCategory(products: Product[]): Record<CategoryId, number> {
@@ -78,10 +81,7 @@ function CataloguePage() {
 
   return (
     <>
-      <PageHeader title="Sortiment">
-        Produkterne hentes direkte fra Google Sheets. Test-visning under
-        opbygning.
-      </PageHeader>
+      {status === 'loading' && <FilterBarSkeleton />}
 
       {status === 'ready' && (
         <CategoryFilterBar
@@ -93,7 +93,29 @@ function CataloguePage() {
       )}
 
       <section className={`container ${styles.section}`}>
-        {status === 'loading' && <p>Indlæser produkter…</p>}
+        {status === 'loading' && (
+          <div className={styles.grid} aria-hidden="true">
+            {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+              <article
+                key={`skeleton-${index}`}
+                className={`${styles.card} ${styles.skeletonCard}`}
+              >
+                <div className={`${styles.image} ${styles.skeleton}`} />
+                <div className={styles.body}>
+                  <div
+                    className={`${styles.skeleton} ${styles.skeletonLine} ${styles.skeletonTitle}`}
+                  />
+                  <div
+                    className={`${styles.skeleton} ${styles.skeletonLine} ${styles.skeletonCategory}`}
+                  />
+                  <div
+                    className={`${styles.skeleton} ${styles.skeletonLine} ${styles.skeletonPrice}`}
+                  />
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
         {status === 'error' && (
           <p>Kunne ikke hente produkter. Prøv igen senere.</p>
         )}
@@ -151,11 +173,6 @@ function CataloguePage() {
                     <h2 className={styles.title}>{product.title}</h2>
                     <p className={styles.category}>{product.category}</p>
                     <p className={styles.price}>{product.price}</p>
-                    {product.barcode && product.barcode !== '-' && (
-                      <p className={styles.barcode}>
-                        Stregkode: {product.barcode}
-                      </p>
-                    )}
                   </div>
                 </article>
               ))}
