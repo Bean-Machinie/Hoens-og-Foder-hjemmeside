@@ -1,10 +1,10 @@
 import diverseImage from '@/assets/images/categories/diverse.webp';
 import foderImage from '@/assets/images/categories/foder.webp';
-import hundImage from '@/assets/images/categories/hund.webp';
 import hoensImage from '@/assets/images/categories/høns.webp';
 import staldImage from '@/assets/images/categories/stald.webp';
 import sundhedImage from '@/assets/images/categories/sundhed.webp';
 import udstyrImage from '@/assets/images/categories/udstyr.webp';
+import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 
 export interface ProductCategory {
   id: string;
@@ -16,10 +16,21 @@ export interface ProductCategory {
 /**
  * Shared product categories used across navigation, carousels and catalogue pages.
  * Keep category names and links centralized here to avoid duplicated website copy.
+ *
+ * These are the website-facing categories that the Google Sheet's "Kategori"
+ * column maps onto (see toWebsiteCategory in pages/catalogue/inventory.ts).
+ * Trivsel and Vildtfugle have no dedicated artwork yet, so they fall back to
+ * the shared placeholder image.
  */
 export const PRODUCT_CATEGORIES = [
   { id: 'hoens', name: 'Høns', href: '/sortiment#hoens', image: hoensImage },
   { id: 'foder', name: 'Foder', href: '/sortiment#foder', image: foderImage },
+  {
+    id: 'sundhed',
+    name: 'Sundhed',
+    href: '/sortiment#sundhed',
+    image: sundhedImage,
+  },
   {
     id: 'udstyr',
     name: 'Udstyr',
@@ -27,16 +38,16 @@ export const PRODUCT_CATEGORIES = [
     image: udstyrImage,
   },
   {
-    id: 'stald-redemiljoe',
-    name: 'Stald & Redemiljø',
-    href: '/sortiment#stald-redemiljoe',
-    image: staldImage,
+    id: 'trivsel',
+    name: 'Trivsel',
+    href: '/sortiment#trivsel',
+    image: placeholderImage,
   },
   {
-    id: 'sundhed-trivsel',
-    name: 'Sundhed & Trivsel',
-    href: '/sortiment#sundhed-trivsel',
-    image: sundhedImage,
+    id: 'stald',
+    name: 'Stald',
+    href: '/sortiment#stald',
+    image: staldImage,
   },
   {
     id: 'diverse',
@@ -45,9 +56,9 @@ export const PRODUCT_CATEGORIES = [
     image: diverseImage,
   },
   {
-    id: 'hund-kat',
-    name: 'Hund & Kat',
-    href: '/sortiment#hund-kat',
-    image: hundImage,
+    id: 'vildtfugle',
+    name: 'Vildtfugle',
+    href: '/sortiment#vildtfugle',
+    image: placeholderImage,
   },
 ] as const satisfies readonly ProductCategory[];

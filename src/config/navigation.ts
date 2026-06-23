@@ -1,7 +1,4 @@
-import archiveIcon from '@/assets/icons/archive.svg';
 import boxIcon from '@/assets/icons/box.svg';
-import shieldIcon from '@/assets/icons/shield.svg';
-import wheatIcon from '@/assets/icons/wheat.svg';
 
 export interface NavMenuItem {
   label: string;
@@ -34,14 +31,14 @@ export const NAV_ITEMS: NavItem[] = [
         dividerAfter: true,
         icon: boxIcon,
       },
-      {
-        label: 'Foder',
-        href: '/sortiment#foder',
-        icon: wheatIcon,
-        iconEmphasis: true,
-      },
-      { label: 'Udstyr', href: '/sortiment#udstyr', icon: archiveIcon },
-      { label: 'Tilskud', href: '/sortiment#tilskud', icon: shieldIcon },
+      { label: 'Høns', href: '/sortiment#hoens' },
+      { label: 'Foder', href: '/sortiment#foder' },
+      { label: 'Sundhed', href: '/sortiment#sundhed' },
+      { label: 'Udstyr', href: '/sortiment#udstyr' },
+      { label: 'Trivsel', href: '/sortiment#trivsel' },
+      { label: 'Stald', href: '/sortiment#stald' },
+      { label: 'Diverse', href: '/sortiment#diverse' },
+      { label: 'Vildtfugle', href: '/sortiment#vildtfugle' },
     ],
   },
   {
