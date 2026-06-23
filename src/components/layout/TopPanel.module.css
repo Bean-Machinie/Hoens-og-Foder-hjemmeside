@@ -211,6 +211,8 @@
 }
 
 .dropdownIconEmphasis {
+  /* Chicken + wheat are more detailed, so nudge them up a touch to visually
+     match the lighter line weight of the other icons. */
   width: 28px;
   height: 28px;
   margin-right: 8px;

@@ -1,4 +1,12 @@
+import archiveIcon from '@/assets/icons/archive.svg';
 import boxIcon from '@/assets/icons/box.svg';
+import chickenIcon from '@/assets/icons/chicken.svg';
+import diverseIcon from '@/assets/icons/diverse.svg';
+import farmFenceIcon from '@/assets/icons/farm-fence.svg';
+import featherIcon from '@/assets/icons/feather.svg';
+import heartIcon from '@/assets/icons/heart.svg';
+import smileIcon from '@/assets/icons/smile.svg';
+import wheatIcon from '@/assets/icons/wheat.svg';
 
 export interface NavMenuItem {
   label: string;
@@ -31,14 +39,14 @@ export const NAV_ITEMS: NavItem[] = [
         dividerAfter: true,
         icon: boxIcon,
       },
-      { label: 'Høns', href: '/sortiment#hoens' },
-      { label: 'Foder', href: '/sortiment#foder' },
-      { label: 'Sundhed', href: '/sortiment#sundhed' },
-      { label: 'Udstyr', href: '/sortiment#udstyr' },
-      { label: 'Trivsel', href: '/sortiment#trivsel' },
-      { label: 'Stald', href: '/sortiment#stald' },
-      { label: 'Diverse', href: '/sortiment#diverse' },
-      { label: 'Vildtfugle', href: '/sortiment#vildtfugle' },
+      { label: 'Høns', href: '/sortiment#hoens', icon: chickenIcon, iconEmphasis: true },
+      { label: 'Foder', href: '/sortiment#foder', icon: wheatIcon, iconEmphasis: true },
+      { label: 'Sundhed', href: '/sortiment#sundhed', icon: heartIcon },
+      { label: 'Udstyr', href: '/sortiment#udstyr', icon: archiveIcon },
+      { label: 'Trivsel', href: '/sortiment#trivsel', icon: smileIcon },
+      { label: 'Stald', href: '/sortiment#stald', icon: farmFenceIcon },
+      { label: 'Diverse', href: '/sortiment#diverse', icon: diverseIcon },
+      { label: 'Vildtfugle', href: '/sortiment#vildtfugle', icon: featherIcon },
     ],
   },
   {
