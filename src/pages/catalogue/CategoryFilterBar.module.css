@@ -67,15 +67,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.3rem;
+  width: 1.3rem;
   height: 1.3rem;
-  padding-inline: 0.35rem;
   border-radius: 999px;
   background-color: var(--color-primary);
   color: #fff;
   font-size: 0.78rem;
   font-weight: 700;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .caret {
@@ -276,8 +276,12 @@
   height: 18px;
   border-radius: 999px;
   background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
-  font-size: 1rem;
-  line-height: 1;
+}
+
+.closeIcon {
+  display: block;
+  width: 9px;
+  height: 9px;
 }
 
 .chip:hover .chipRemove {

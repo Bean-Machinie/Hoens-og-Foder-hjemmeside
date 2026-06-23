@@ -42,6 +42,25 @@ function CheckIcon() {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className={styles.closeIcon}
+      viewBox="0 0 16 16"
+      focusable="false"
+    >
+      <path
+        d="M4 4 12 12 M12 4 4 12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function FunnelIcon() {
   return (
     <svg
@@ -198,7 +217,7 @@ function CategoryFilterBar({
                   >
                     <span>{category.name}</span>
                     <span aria-hidden="true" className={styles.chipRemove}>
-                      ×
+                      <CloseIcon />
                     </span>
                     <span className="sr-only">Fjern filter</span>
                   </button>
