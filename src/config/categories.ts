@@ -19,15 +19,15 @@ export interface ProductCategory {
  *
  * These are the website-facing categories that the Google Sheet's "Kategori"
  * column maps onto (see toWebsiteCategory in pages/catalogue/inventory.ts).
- * Trivsel and Vildtfugle have no dedicated artwork yet, so they fall back to
- * the shared placeholder image.
+ * Vildtfugle has no dedicated artwork yet, so it falls back to the shared
+ * placeholder image.
  */
 export const PRODUCT_CATEGORIES = [
   { id: 'hoens', name: 'Høns', href: '/sortiment?kategori=hoens', image: hoensImage },
   { id: 'foder', name: 'Foder', href: '/sortiment?kategori=foder', image: foderImage },
   {
     id: 'sundhed',
-    name: 'Sundhed',
+    name: 'Sundhed & Trivsel',
     href: '/sortiment?kategori=sundhed',
     image: sundhedImage,
   },
@@ -36,12 +36,6 @@ export const PRODUCT_CATEGORIES = [
     name: 'Udstyr',
     href: '/sortiment?kategori=udstyr',
     image: udstyrImage,
-  },
-  {
-    id: 'trivsel',
-    name: 'Trivsel',
-    href: '/sortiment?kategori=trivsel',
-    image: placeholderImage,
   },
   {
     id: 'stald',
