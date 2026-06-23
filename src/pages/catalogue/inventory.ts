@@ -39,9 +39,9 @@ export type ProductStatus =
 
 const WEBSITE_CATEGORY_BY_SHEET_CATEGORY: Record<string, string> = {
   'HØNS - FODER': 'Foder',
-  'HØNS - SUNDHED': 'Sundhed & Trivsel',
+  'HØNS - SUNDHED': 'Sundhed',
   'HØNS - UDSTYR': 'Udstyr',
-  'HØNS - TRIVSEL': 'Sundhed & Trivsel',
+  'HØNS - TRIVSEL': 'Sundhed',
   'HØNS - STALD': 'Stald',
   'TILBEHØR - FODER': 'Udstyr',
   'HØNS - DIVERSE': 'Diverse',

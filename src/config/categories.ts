@@ -27,7 +27,7 @@ export const PRODUCT_CATEGORIES = [
   { id: 'foder', name: 'Foder', href: '/sortiment?kategori=foder', image: foderImage },
   {
     id: 'sundhed',
-    name: 'Sundhed & Trivsel',
+    name: 'Sundhed',
     href: '/sortiment?kategori=sundhed',
     image: sundhedImage,
   },

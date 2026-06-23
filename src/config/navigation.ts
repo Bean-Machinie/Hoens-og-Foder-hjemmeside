@@ -40,7 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
       },
       { label: 'Høns', href: '/sortiment?kategori=hoens', icon: chickenIcon, iconEmphasis: true },
       { label: 'Foder', href: '/sortiment?kategori=foder', icon: wheatIcon, iconEmphasis: true },
-      { label: 'Sundhed & Trivsel', href: '/sortiment?kategori=sundhed', icon: heartIcon },
+      { label: 'Sundhed', href: '/sortiment?kategori=sundhed', icon: heartIcon },
       { label: 'Udstyr', href: '/sortiment?kategori=udstyr', icon: archiveIcon },
       { label: 'Stald', href: '/sortiment?kategori=stald', icon: farmFenceIcon },
       { label: 'Diverse', href: '/sortiment?kategori=diverse', icon: diverseIcon },
