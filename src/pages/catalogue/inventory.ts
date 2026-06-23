@@ -6,9 +6,19 @@
  * or stock logic lives here yet — this is intentionally minimal.
  */
 
-/** Published Google Sheets CSV (File → Share → Publish to web → CSV). */
+/**
+ * Live Google Sheets CSV via the gviz endpoint.
+ *
+ * Reads the current sheet directly (requires "Anyone with the link → Viewer"),
+ * unlike the old "Publish to web" snapshot which served stale, inconsistent
+ * copies from Google's CDN edge nodes — the cause of the flip-flopping item
+ * counts on refresh. Format is plain CSV, identical to before.
+ *
+ *   <SHEET_ID> = 1Xr349RUKU7m3k56wXA7pbRNKOvt_mCrJmOwgHEqMt4U
+ *   sheet      = Items (the tab name)
+ */
 export const INVENTORY_CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRA8r74-ifqfq6h7tAbu7g-VqR08qY5QlAN-2bxgOVE-cnMebEYstBWSs9LJChhu55NlXbbR-uVF_L7/pub?output=csv';
+  'https://docs.google.com/spreadsheets/d/1Xr349RUKU7m3k56wXA7pbRNKOvt_mCrJmOwgHEqMt4U/gviz/tq?tqx=out:csv&sheet=Items';
 
 export interface Product {
   title: string;
@@ -165,7 +175,13 @@ function toProductStatus(value: string): ProductStatus {
 
 /** Fetch the CSV and return every parsed product (visible and hidden). */
 export async function fetchProducts(): Promise<Product[]> {
-  const response = await fetch(INVENTORY_CSV_URL);
+  // Cache-bust on every load. Without this the browser serves a stale copy of
+  // the CSV from its HTTP cache, so items removed from the sheet keep showing
+  // up. A unique query param per request forces a fresh download every time,
+  // and `cache: 'no-store'` tells the browser not to read or write its cache.
+  const url = `${INVENTORY_CSV_URL}&_cb=${Date.now()}`;
+
+  const response = await fetch(url, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`Failed to load inventory CSV: ${response.status}`);
   }
