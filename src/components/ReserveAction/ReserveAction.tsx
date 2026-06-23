@@ -35,31 +35,15 @@ const muiTheme = createTheme({
 
 function PhoneCallIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      className={styles.phoneIcon}
-      viewBox="0 0 16 16"
-      focusable="false"
-    >
-      <path
-        d="M5.2 1.9 6.5 4a1 1 0 0 1-.2 1.2l-1 .9a8.3 8.3 0 0 0 3.7 3.7l.9-1a1 1 0 0 1 1.2-.2l2.1 1.3a1 1 0 0 1 .4 1.3l-.7 1.5a1.3 1.3 0 0 1-1.4.7C7.9 14.1 1.9 8.1 1.2 2.8A1.3 1.3 0 0 1 1.9 1.4l1.5-.7a1 1 0 0 1 1.3.4Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
+    <svg aria-hidden="true" className={styles.phoneIcon} viewBox="0 0 16 16" focusable="false">
+      <path d="M5.2 1.9 6.5 4a1 1 0 0 1-.2 1.2l-1 .9a8.3 8.3 0 0 0 3.7 3.7l.9-1a1 1 0 0 1 1.2-.2l2.1 1.3a1 1 0 0 1 .4 1.3l-.7 1.5a1.3 1.3 0 0 1-1.4.7C7.9 14.1 1.9 8.1 1.2 2.8A1.3 1.3 0 0 1 1.9 1.4l1.5-.7a1 1 0 0 1 1.3.4Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function CalendarIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      className={styles.inlineIcon}
-      viewBox="0 0 16 16"
-      focusable="false"
-    >
+    <svg aria-hidden="true" className={styles.inlineIcon} viewBox="0 0 16 16" focusable="false">
       <rect x="2" y="3" width="12" height="11" rx="2" fill="none" stroke="currentColor" strokeWidth="1.3" />
       <path d="M2 6h12M5.5 1.5v3M10.5 1.5v3" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
@@ -68,12 +52,7 @@ function CalendarIcon() {
 
 function ClockIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      className={styles.inlineIcon}
-      viewBox="0 0 16 16"
-      focusable="false"
-    >
+    <svg aria-hidden="true" className={styles.inlineIcon} viewBox="0 0 16 16" focusable="false">
       <circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" strokeWidth="1.3" />
       <path d="M8 4.6V8l2.3 1.6" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -128,6 +107,7 @@ function ReserveAction({ product }: ReserveActionProps) {
     if (!rect) {
       return;
     }
+    const calWidth = 320;
     const calHeight = 360;
     const margin = 8;
     const below = rect.bottom + margin;
@@ -136,7 +116,8 @@ function ReserveAction({ product }: ReserveActionProps) {
       overflowsBottom && rect.top - calHeight - margin > 0
         ? rect.top - calHeight - margin
         : below;
-    setCalendarPos({ top, left: rect.left });
+    const left = Math.min(rect.left, window.innerWidth - calWidth - margin);
+    setCalendarPos({ top, left: Math.max(margin, left) });
   };
 
   const openCalendar = () => {
@@ -251,204 +232,192 @@ function ReserveAction({ product }: ReserveActionProps) {
         <Dialog.Portal>
           <Dialog.Overlay className={styles.overlay} />
           <Dialog.Content className={styles.panel} aria-describedby={undefined}>
-            <div className={styles.panelHead}>
-              <div>
-                <Dialog.Title className={styles.panelTitle}>
-                  Reservér varen
-                </Dialog.Title>
-                <p className={styles.panelSubtitle}>{product.title}</p>
+            <div className={styles.panelInner}>
+              <div className={styles.panelHead}>
+                <div>
+                  <Dialog.Title className={styles.panelTitle}>
+                    Reservér varen
+                  </Dialog.Title>
+                  <p className={styles.panelSubtitle}>{product.title}</p>
+                </div>
+                <Dialog.Close className={styles.closeButton} aria-label="Luk">
+                  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path d="M4 4 12 12 M12 4 4 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                </Dialog.Close>
               </div>
-              <Dialog.Close className={styles.closeButton} aria-label="Luk">
-                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                  <path d="M4 4 12 12 M12 4 4 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-              </Dialog.Close>
-            </div>
 
-            {submitted ? (
-              <div className={styles.success} role="status">
-                <p className={styles.successTitle}>Tak for din reservation!</p>
-                <p className={styles.successText}>
-                  Vi har åbnet dit mailprogram med reservationen af{' '}
-                  <strong>{product.title}</strong>. Tryk send, så vender vi
-                  tilbage hurtigst muligt.
-                </p>
-                <Dialog.Close className={styles.successClose}>Luk</Dialog.Close>
-              </div>
-            ) : (
-              <form className={styles.form} onSubmit={handleSubmit} noValidate>
-                <div className={styles.row}>
+              {submitted ? (
+                <div className={styles.success} role="status">
+                  <p className={styles.successTitle}>Tak for din reservation!</p>
+                  <p className={styles.successText}>
+                    Vi har åbnet dit mailprogram med reservationen af{' '}
+                    <strong>{product.title}</strong>. Tryk send, så vender vi
+                    tilbage hurtigst muligt.
+                  </p>
+                  <Dialog.Close className={styles.successClose}>Luk</Dialog.Close>
+                </div>
+              ) : (
+                <form className={styles.form} onSubmit={handleSubmit} noValidate>
+                  <div className={styles.row}>
+                    <div className={styles.field}>
+                      <label className={styles.label} htmlFor={`${fieldId}-name`}>
+                        Navn <span className={styles.req}>*</span>
+                      </label>
+                      <input
+                        id={`${fieldId}-name`}
+                        className={`${styles.input} ${
+                          showErrors && !nameValid ? styles.inputError : ''
+                        }`}
+                        type="text"
+                        autoComplete="name"
+                        placeholder="Dit fulde navn"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                      />
+                    </div>
+
+                    <div className={styles.field}>
+                      <label className={styles.label} htmlFor={`${fieldId}-phone`}>
+                        Telefon <span className={styles.req}>*</span>
+                      </label>
+                      <div
+                        className={`${styles.phoneWrap} ${
+                          showErrors && !phoneValid ? styles.inputError : ''
+                        }`}
+                      >
+                        <PhoneInput
+                          defaultCountry="dk"
+                          value={phone}
+                          onChange={(value) => setPhone(value)}
+                          placeholder="Tlf. nummer"
+                          inputProps={{ id: `${fieldId}-phone`, autoComplete: 'tel' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className={styles.field}>
-                    <label className={styles.label} htmlFor={`${fieldId}-name`}>
-                      Navn <span className={styles.req}>*</span>
+                    <span className={styles.label}>
+                      Hvornår henter du? <span className={styles.req}>*</span>
+                      <Tooltip.Provider delayDuration={120}>
+                        <Tooltip.Root>
+                          <Tooltip.Trigger asChild>
+                            <button type="button" className={styles.infoButton} aria-label="Information om afhentning">
+                              <InfoIcon />
+                            </button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Portal>
+                            <Tooltip.Content className={styles.tooltip} sideOffset={6} collisionPadding={12}>
+                              {DISCLAIMER}
+                              <Tooltip.Arrow className={styles.tooltipArrow} />
+                            </Tooltip.Content>
+                          </Tooltip.Portal>
+                        </Tooltip.Root>
+                      </Tooltip.Provider>
+                    </span>
+
+                    <div className={styles.segment} ref={segmentRef}>
+                      <button
+                        type="button"
+                        className={`${styles.segmentButton} ${
+                          pickupMode === 'today' ? styles.segmentActive : ''
+                        }`}
+                        onClick={() => {
+                          setPickupMode('today');
+                          setCalendarOpen(false);
+                        }}
+                        aria-pressed={pickupMode === 'today'}
+                      >
+                        <ClockIcon />
+                        <span>I dag</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.segmentButton} ${
+                          pickupMode === 'pick' ? styles.segmentActive : ''
+                        }`}
+                        onClick={() =>
+                          calendarOpen ? setCalendarOpen(false) : openCalendar()
+                        }
+                        aria-haspopup="dialog"
+                        aria-expanded={calendarOpen}
+                      >
+                        <CalendarIcon />
+                        <span>
+                          {pickupMode === 'pick' && pickedDate
+                            ? format(pickedDate, 'd. MMM yyyy', { locale: da })
+                            : 'Vælg dag'}
+                        </span>
+                      </button>
+                    </div>
+
+                    {calendarOpen && (
+                      <div
+                        ref={calendarRef}
+                        className={styles.calendarPopover}
+                        style={{ top: calendarPos.top, left: calendarPos.left }}
+                        role="dialog"
+                        aria-label="Vælg afhentningsdag"
+                      >
+                        <ThemeProvider theme={muiTheme}>
+                          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={da}>
+                            <DateCalendar
+                              value={pickedDate ?? null}
+                              onChange={(date: Date | null) => {
+                                setPickedDate(date ?? undefined);
+                                setPickupMode('pick');
+                                if (date) {
+                                  setCalendarOpen(false);
+                                }
+                              }}
+                              disablePast
+                            />
+                          </LocalizationProvider>
+                        </ThemeProvider>
+                      </div>
+                    )}
+
+                    {showErrors && !dateValid && (
+                      <p className={styles.errorText}>Vælg en afhentningsdag.</p>
+                    )}
+                  </div>
+
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor={`${fieldId}-email`}>
+                      E-mail <span className={styles.optional}>(valgfri)</span>
                     </label>
                     <input
-                      id={`${fieldId}-name`}
-                      className={`${styles.input} ${
-                        showErrors && !nameValid ? styles.inputError : ''
-                      }`}
-                      type="text"
-                      autoComplete="name"
-                      placeholder="Dit fulde navn"
-                      value={name}
-                      onChange={(event) => setName(event.target.value)}
+                      id={`${fieldId}-email`}
+                      className={styles.input}
+                      type="email"
+                      autoComplete="email"
+                      placeholder="dig@eksempel.dk"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
                     />
                   </div>
 
                   <div className={styles.field}>
-                    <label className={styles.label} htmlFor={`${fieldId}-phone`}>
-                      Telefon <span className={styles.req}>*</span>
+                    <label className={styles.label} htmlFor={`${fieldId}-message`}>
+                      Besked <span className={styles.optional}>(valgfri)</span>
                     </label>
-                    <div
-                      className={`${styles.phoneWrap} ${
-                        showErrors && !phoneValid ? styles.inputError : ''
-                      }`}
-                    >
-                      <PhoneInput
-                        defaultCountry="dk"
-                        value={phone}
-                        onChange={(value) => setPhone(value)}
-                        placeholder="Tlf. nummer"
-                        inputProps={{
-                          id: `${fieldId}-phone`,
-                          autoComplete: 'tel',
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.field}>
-                  <span className={styles.label}>
-                    Hvornår henter du? <span className={styles.req}>*</span>
-                    <Tooltip.Provider delayDuration={120}>
-                      <Tooltip.Root>
-                        <Tooltip.Trigger asChild>
-                          <button
-                            type="button"
-                            className={styles.infoButton}
-                            aria-label="Information om afhentning"
-                          >
-                            <InfoIcon />
-                          </button>
-                        </Tooltip.Trigger>
-                        <Tooltip.Portal>
-                          <Tooltip.Content
-                            className={styles.tooltip}
-                            sideOffset={6}
-                            collisionPadding={12}
-                          >
-                            {DISCLAIMER}
-                            <Tooltip.Arrow className={styles.tooltipArrow} />
-                          </Tooltip.Content>
-                        </Tooltip.Portal>
-                      </Tooltip.Root>
-                    </Tooltip.Provider>
-                  </span>
-
-                  <div className={styles.segment} ref={segmentRef}>
-                    <button
-                      type="button"
-                      className={`${styles.segmentButton} ${
-                        pickupMode === 'today' ? styles.segmentActive : ''
-                      }`}
-                      onClick={() => {
-                        setPickupMode('today');
-                        setCalendarOpen(false);
-                      }}
-                      aria-pressed={pickupMode === 'today'}
-                    >
-                      <ClockIcon />
-                      <span>I dag</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.segmentButton} ${
-                        pickupMode === 'pick' ? styles.segmentActive : ''
-                      }`}
-                      onClick={() =>
-                        calendarOpen ? setCalendarOpen(false) : openCalendar()
-                      }
-                      aria-haspopup="dialog"
-                      aria-expanded={calendarOpen}
-                    >
-                      <CalendarIcon />
-                      <span>
-                        {pickupMode === 'pick' && pickedDate
-                          ? format(pickedDate, 'd. MMM yyyy', { locale: da })
-                          : 'Vælg dag'}
-                      </span>
-                    </button>
+                    <textarea
+                      id={`${fieldId}-message`}
+                      className={`${styles.input} ${styles.textarea}`}
+                      rows={3}
+                      placeholder="Evt. ønsker eller spørgsmål…"
+                      value={message}
+                      onChange={(event) => setMessage(event.target.value)}
+                    />
                   </div>
 
-                  {calendarOpen && (
-                    <div
-                      ref={calendarRef}
-                      className={styles.calendarPopover}
-                      style={{ top: calendarPos.top, left: calendarPos.left }}
-                      role="dialog"
-                      aria-label="Vælg afhentningsdag"
-                    >
-                      <ThemeProvider theme={muiTheme}>
-                        <LocalizationProvider
-                          dateAdapter={AdapterDateFns}
-                          adapterLocale={da}
-                        >
-                          <DateCalendar
-                            value={pickedDate ?? null}
-                            onChange={(date: Date | null) => {
-                              setPickedDate(date ?? undefined);
-                              setPickupMode('pick');
-                              if (date) {
-                                setCalendarOpen(false);
-                              }
-                            }}
-                            disablePast
-                          />
-                        </LocalizationProvider>
-                      </ThemeProvider>
-                    </div>
-                  )}
-
-                  {showErrors && !dateValid && (
-                    <p className={styles.errorText}>Vælg en afhentningsdag.</p>
-                  )}
-                </div>
-
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor={`${fieldId}-email`}>
-                    E-mail <span className={styles.optional}>(valgfri)</span>
-                  </label>
-                  <input
-                    id={`${fieldId}-email`}
-                    className={styles.input}
-                    type="email"
-                    autoComplete="email"
-                    placeholder="dig@eksempel.dk"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor={`${fieldId}-message`}>
-                    Besked <span className={styles.optional}>(valgfri)</span>
-                  </label>
-                  <textarea
-                    id={`${fieldId}-message`}
-                    className={`${styles.input} ${styles.textarea}`}
-                    rows={3}
-                    placeholder="Evt. ønsker eller spørgsmål…"
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                  />
-                </div>
-
-                <button className={styles.submitButton} type="submit">
-                  Send reservering
-                </button>
-              </form>
-            )}
+                  <button className={styles.submitButton} type="submit">
+                    Send reservering
+                  </button>
+                </form>
+              )}
+            </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>

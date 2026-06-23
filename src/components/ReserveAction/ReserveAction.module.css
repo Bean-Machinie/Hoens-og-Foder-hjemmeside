@@ -80,21 +80,27 @@
   animation: overlayIn 180ms ease;
 }
 
+/* Full-screen scroll + centering container. No transform here, so the
+   calendar's position:fixed works relative to the viewport and the phone
+   dropdown isn't clipped by a small box. */
 .panel {
   position: fixed;
+  inset: 0;
   z-index: 101;
-  top: 50%;
-  left: 50%;
-  width: min(560px, calc(100vw - 2rem));
-  max-height: min(90vh, 820px);
+  display: flex;
   overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.panelInner {
+  margin: auto;
+  width: min(560px, 100%);
   padding: clamp(var(--space-4), 3vw, var(--space-5));
   background-color: var(--color-surface);
   border-radius: 18px;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.28);
-  transform: translate(-50%, -50%);
-  animation: panelIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
   font-family: var(--font-body);
+  animation: panelIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes overlayIn {
@@ -106,7 +112,7 @@
 @keyframes panelIn {
   from {
     opacity: 0;
-    transform: translate(-50%, -46%) scale(0.97);
+    transform: translateY(8px) scale(0.98);
   }
 }
 
@@ -465,7 +471,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .overlay,
-  .panel,
+  .panelInner,
   .tooltip,
   .calendarPopover {
     animation: none;
