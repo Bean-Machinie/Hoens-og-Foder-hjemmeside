@@ -135,20 +135,26 @@ function ItemDetailPage() {
           </div>
 
           <div className={styles.info}>
-            <p className={styles.category}>{product.category}</p>
-            <h1 className={styles.title}>{product.title}</h1>
-            {product.price && <p className={styles.price}>{product.price}</p>}
+            <header className={styles.header}>
+              <p className={styles.category}>{product.category}</p>
+              <h1 className={styles.title}>{product.title}</h1>
+              {product.price && <p className={styles.price}>{product.price}</p>}
+            </header>
 
-            {product.description && (
-              <div className={styles.description}>
-                {product.description
+            {/* Always rendered with a reserved min-height so the layout stays
+                structured even for items without a description. */}
+            <div className={styles.description}>
+              {product.description.trim() ? (
+                product.description
                   .split(/\n+/)
                   .filter((line) => line.trim() !== '')
-                  .map((line, index) => (
-                    <p key={index}>{line}</p>
-                  ))}
-              </div>
-            )}
+                  .map((line, index) => <p key={index}>{line}</p>)
+              ) : (
+                <p className={styles.descriptionEmpty}>
+                  Der er endnu ikke tilføjet en beskrivelse til denne vare.
+                </p>
+              )}
+            </div>
 
             <div className={styles.reserve}>
               <ReserveAction product={product} />

@@ -86,6 +86,12 @@
 .info {
   display: flex;
   flex-direction: column;
+  min-height: 100%;
+}
+
+.header {
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .category {
@@ -114,7 +120,9 @@
 }
 
 .description {
-  margin-bottom: var(--space-5);
+  /* Reserve space so items without a description keep the same structure. */
+  min-height: 5.5rem;
+  padding-block: var(--space-4);
   color: var(--color-text);
   line-height: 1.6;
 }
@@ -125,6 +133,11 @@
 
 .description p:last-child {
   margin-bottom: 0;
+}
+
+.descriptionEmpty {
+  color: var(--color-text-muted);
+  font-style: italic;
 }
 
 .reserve {
