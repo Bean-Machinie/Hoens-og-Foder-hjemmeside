@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import HomePage from '@/pages/home/HomePage';
 import CataloguePage from '@/pages/catalogue/CataloguePage';
+import ItemDetailPage from '@/pages/ItemDetail/ItemDetailPage';
 import AboutPage from '@/pages/about/AboutPage';
 import ContactPage from '@/pages/contact/ContactPage';
 import InformationPage from '@/pages/information/InformationPage';
@@ -17,6 +18,7 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="sortiment" element={<CataloguePage />} />
+        <Route path="sortiment/:slug" element={<ItemDetailPage />} />
         <Route
           path="information/nye-honseejere"
           element={

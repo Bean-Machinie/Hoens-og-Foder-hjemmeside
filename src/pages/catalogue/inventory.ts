@@ -6,17 +6,8 @@
  * or stock logic lives here yet — this is intentionally minimal.
  */
 
-/**
- * Live Google Sheets CSV via the gviz endpoint.
- *
- * Reads the current sheet directly (requires "Anyone with the link → Viewer"),
- * unlike the old "Publish to web" snapshot which served stale, inconsistent
- * copies from Google's CDN edge nodes — the cause of the flip-flopping item
- * counts on refresh. Format is plain CSV, identical to before.
- *
- *   <SHEET_ID> = 1Xr349RUKU7m3k56wXA7pbRNKOvt_mCrJmOwgHEqMt4U
- *   sheet      = Items (the tab name)
- */
+import { slugify } from '@/lib/slug';
+
 export const INVENTORY_CSV_URL =
   'https://docs.google.com/spreadsheets/d/1Xr349RUKU7m3k56wXA7pbRNKOvt_mCrJmOwgHEqMt4U/gviz/tq?tqx=out:csv&sheet=Items';
 
@@ -29,6 +20,17 @@ export interface Product {
   status: ProductStatus;
   visible: boolean;
   imageUrl: string;
+}
+
+export function productSlug(product: Product): string {
+  return slugify(product.title);
+}
+
+export function findProductBySlug(
+  products: Product[],
+  slug: string,
+): Product | undefined {
+  return products.find((product) => productSlug(product) === slug);
 }
 
 export type ProductStatus =
@@ -60,10 +62,6 @@ export function toWebsiteCategory(sheetCategory: string): string {
   return WEBSITE_CATEGORY_BY_SHEET_CATEGORY[normalized] ?? 'Diverse';
 }
 
-/**
- * Parse a CSV string into an array of row objects keyed by the header row.
- * Handles quoted fields (which may contain commas, e.g. "119,00 DKK").
- */
 function parseCsv(text: string): Record<string, string>[] {
   const rows: string[][] = [];
   let field = '';
@@ -76,7 +74,7 @@ function parseCsv(text: string): Record<string, string>[] {
     if (inQuotes) {
       if (char === '"') {
         if (text[i + 1] === '"') {
-          field += '"'; // escaped quote
+          field += '"';
           i += 1;
         } else {
           inQuotes = false;
@@ -93,7 +91,6 @@ function parseCsv(text: string): Record<string, string>[] {
       row.push(field);
       field = '';
     } else if (char === '\n' || char === '\r') {
-      // Commit field/row on a line break, swallowing \r\n pairs.
       if (char === '\r' && text[i + 1] === '\n') {
         i += 1;
       }
@@ -106,7 +103,6 @@ function parseCsv(text: string): Record<string, string>[] {
     }
   }
 
-  // Flush the trailing field/row if the file doesn't end with a newline.
   if (field.length > 0 || row.length > 0) {
     row.push(field);
     rows.push(row);
@@ -127,22 +123,12 @@ function parseCsv(text: string): Record<string, string>[] {
   });
 }
 
-/**
- * Convert a Google Drive share URL into a direct, embeddable image URL.
- * Returns other URLs unchanged. Empty input returns an empty string.
- *
- * Supported share formats:
- *   https://drive.google.com/file/d/FILE_ID/view?usp=...
- *   https://drive.google.com/open?id=FILE_ID
- *   https://drive.google.com/uc?id=FILE_ID
- */
 export function toDirectImageUrl(url: string): string {
   const trimmedUrl = url.trim();
   if (!trimmedUrl) {
     return '';
   }
 
-  // Also accept a URL pasted as a Markdown link: [URL](URL).
   const markdownMatch = trimmedUrl.match(/^\[[^\]]*\]\((https?:\/\/[^)]+)\)$/);
   const imageUrl = markdownMatch?.[1] ?? trimmedUrl;
 
@@ -151,7 +137,6 @@ export function toDirectImageUrl(url: string): string {
   const fileId = fileMatch?.[1] ?? queryMatch?.[1];
 
   if (fileId) {
-    // The thumbnail endpoint embeds reliably in <img> without CORS issues.
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
   }
 
@@ -173,12 +158,7 @@ function toProductStatus(value: string): ProductStatus {
   return statuses[normalized] ?? '';
 }
 
-/** Fetch the CSV and return every parsed product (visible and hidden). */
 export async function fetchProducts(): Promise<Product[]> {
-  // Cache-bust on every load. Without this the browser serves a stale copy of
-  // the CSV from its HTTP cache, so items removed from the sheet keep showing
-  // up. A unique query param per request forces a fresh download every time,
-  // and `cache: 'no-store'` tells the browser not to read or write its cache.
   const url = `${INVENTORY_CSV_URL}&_cb=${Date.now()}`;
 
   const response = await fetch(url, { cache: 'no-store' });

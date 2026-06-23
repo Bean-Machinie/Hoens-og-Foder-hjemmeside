@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import {
   CATEGORY_IDS,
   categoryIdForName,
   type CategoryId,
 } from '@/config/categories';
-import { fetchProducts, type Product } from './inventory';
+import { fetchProducts, productSlug, type Product } from './inventory';
 import { useCategoryFilter } from './useCategoryFilter';
 import CategoryFilterBar from './CategoryFilterBar';
 import FilterBarSkeleton from './FilterBarSkeleton';
@@ -136,45 +137,51 @@ function CataloguePage() {
           ) : (
             <div className={styles.grid}>
               {filteredProducts.map((product, index) => (
-                <article
+                <Link
                   key={`${product.title}-${index}`}
-                  className={`${styles.card} ${
-                    product.status === 'Midlertidigt udsolgt'
-                      ? styles.soldOut
-                      : ''
-                  }`}
+                  to={`/sortiment/${productSlug(product)}`}
+                  className={styles.cardLink}
+                  aria-label={product.title}
                 >
-                  {product.status && (
-                    <span
-                      className={`${styles.status} ${
-                        product.status === 'Nyhed'
-                          ? styles.newProduct
-                          : product.status === 'Bestillingsvare'
-                            ? styles.orderOnly
-                            : styles.temporarilySoldOut
-                      }`}
-                    >
-                      {product.status}
-                    </span>
-                  )}
-                  <img
-                    className={styles.image}
-                    src={product.imageUrl || placeholderImage}
-                    alt={product.title}
-                    loading="lazy"
-                    onError={(event) => {
-                      const img = event.currentTarget;
-                      if (img.src !== placeholderImage) {
-                        img.src = placeholderImage;
-                      }
-                    }}
-                  />
-                  <div className={styles.body}>
-                    <h2 className={styles.title}>{product.title}</h2>
-                    <p className={styles.category}>{product.category}</p>
-                    <p className={styles.price}>{product.price}</p>
-                  </div>
-                </article>
+                  <article
+                    className={`${styles.card} ${
+                      product.status === 'Midlertidigt udsolgt'
+                        ? styles.soldOut
+                        : ''
+                    }`}
+                  >
+                    {product.status && (
+                      <span
+                        className={`${styles.status} ${
+                          product.status === 'Nyhed'
+                            ? styles.newProduct
+                            : product.status === 'Bestillingsvare'
+                              ? styles.orderOnly
+                              : styles.temporarilySoldOut
+                        }`}
+                      >
+                        {product.status}
+                      </span>
+                    )}
+                    <img
+                      className={styles.image}
+                      src={product.imageUrl || placeholderImage}
+                      alt={product.title}
+                      loading="lazy"
+                      onError={(event) => {
+                        const img = event.currentTarget;
+                        if (img.src !== placeholderImage) {
+                          img.src = placeholderImage;
+                        }
+                      }}
+                    />
+                    <div className={styles.body}>
+                      <h2 className={styles.title}>{product.title}</h2>
+                      <p className={styles.category}>{product.category}</p>
+                      <p className={styles.price}>{product.price}</p>
+                    </div>
+                  </article>
+                </Link>
               ))}
             </div>
           ))}
