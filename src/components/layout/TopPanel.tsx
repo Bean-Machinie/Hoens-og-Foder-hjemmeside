@@ -130,18 +130,35 @@ function TopPanel() {
     }
   };
   const isLinkActive = (href: string) => {
-    const [pathname, hash] = href.split('#');
+    const [beforeHash, hash] = href.split('#');
+    const [rawPath, query] = beforeHash.split('?');
+    const targetPath = rawPath || '/';
 
-    if (hash) {
-      return (
-        location.pathname === (pathname || '/') &&
-        location.hash === `#${hash}`
-      );
+    if (location.pathname !== targetPath) {
+      return false;
     }
 
-    return pathname === '/'
-      ? location.pathname === '/'
-      : location.pathname === pathname;
+    // Hash links (e.g. "/#kontakt") match on the hash.
+    if (hash) {
+      return location.hash === `#${hash}`;
+    }
+
+    // Category links (e.g. "/sortiment?kategori=hoens") are active when that
+    // exact category is the only one selected in the URL.
+    if (query) {
+      const targetCategory = new URLSearchParams(query).get('kategori');
+      const currentCategory = new URLSearchParams(location.search).get(
+        'kategori',
+      );
+      return targetCategory === currentCategory;
+    }
+
+    // Plain "/sortiment" ("Alt sortiment") is active only with no filter set.
+    if (targetPath === '/sortiment') {
+      return !new URLSearchParams(location.search).has('kategori');
+    }
+
+    return true;
   };
 
   const isDropdownActive = (label: string) => {

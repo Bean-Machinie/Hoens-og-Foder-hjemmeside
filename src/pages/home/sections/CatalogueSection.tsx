@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent,
+} from 'react';
+import { Link } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 import Button from '@/components/ui/Button';
 import { PRODUCT_CATEGORIES } from '@/config/categories';
@@ -37,6 +45,33 @@ function CatalogueSection() {
       emblaApi.scrollTo(nearestSlide);
     },
     [emblaApi],
+  );
+
+  // The carousel is draggable, so a tap that turns into a drag must not also
+  // navigate. Record where the pointer went down and cancel the click if it
+  // moved more than a few pixels before release.
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
+
+  const handleCardPointerDown = useCallback(
+    (event: PointerEvent<HTMLAnchorElement>) => {
+      dragStart.current = { x: event.clientX, y: event.clientY };
+    },
+    [],
+  );
+
+  const handleCardClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      const start = dragStart.current;
+      if (!start) {
+        return;
+      }
+      const movedFar =
+        Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8;
+      if (movedFar) {
+        event.preventDefault();
+      }
+    },
+    [],
   );
 
   const onSelect = useCallback(() => {
@@ -88,30 +123,42 @@ function CatalogueSection() {
 
           <div className={styles.carousel} ref={emblaRef}>
             <ul className={styles.track}>
-              {[...PRODUCT_CATEGORIES, ...PRODUCT_CATEGORIES].map((item, index) => (
-                <li
-                  aria-hidden={
-                    index >= PRODUCT_CATEGORIES.length ? 'true' : undefined
-                  }
-                  key={`${item.id}-${index}`}
-                  className={styles.slide}
-                >
-                  <article className={styles.card}>
-                    <img
-                      alt=""
-                      aria-hidden="true"
-                      className={styles.thumb}
-                      decoding="async"
+              {[...PRODUCT_CATEGORIES, ...PRODUCT_CATEGORIES].map((item, index) => {
+                const isClone = index >= PRODUCT_CATEGORIES.length;
+
+                return (
+                  <li
+                    aria-hidden={isClone ? 'true' : undefined}
+                    key={`${item.id}-${index}`}
+                    className={styles.slide}
+                  >
+                    <Link
+                      aria-label={`Vis ${item.name} i sortimentet`}
+                      className={styles.cardLink}
                       draggable={false}
-                      loading="lazy"
-                      src={item.image}
-                    />
-                    <div className={styles.cardBody}>
-                      <h3 className={styles.cardTitle}>{item.name}</h3>
-                    </div>
-                  </article>
-                </li>
-              ))}
+                      onClick={handleCardClick}
+                      onPointerDown={handleCardPointerDown}
+                      tabIndex={isClone ? -1 : undefined}
+                      to={item.href}
+                    >
+                      <article className={styles.card}>
+                        <img
+                          alt=""
+                          aria-hidden="true"
+                          className={styles.thumb}
+                          decoding="async"
+                          draggable={false}
+                          loading="lazy"
+                          src={item.image}
+                        />
+                        <div className={styles.cardBody}>
+                          <h3 className={styles.cardTitle}>{item.name}</h3>
+                        </div>
+                      </article>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

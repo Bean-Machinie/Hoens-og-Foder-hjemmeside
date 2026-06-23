@@ -23,42 +23,77 @@ export interface ProductCategory {
  * the shared placeholder image.
  */
 export const PRODUCT_CATEGORIES = [
-  { id: 'hoens', name: 'Høns', href: '/sortiment#hoens', image: hoensImage },
-  { id: 'foder', name: 'Foder', href: '/sortiment#foder', image: foderImage },
+  { id: 'hoens', name: 'Høns', href: '/sortiment?kategori=hoens', image: hoensImage },
+  { id: 'foder', name: 'Foder', href: '/sortiment?kategori=foder', image: foderImage },
   {
     id: 'sundhed',
     name: 'Sundhed',
-    href: '/sortiment#sundhed',
+    href: '/sortiment?kategori=sundhed',
     image: sundhedImage,
   },
   {
     id: 'udstyr',
     name: 'Udstyr',
-    href: '/sortiment#udstyr',
+    href: '/sortiment?kategori=udstyr',
     image: udstyrImage,
   },
   {
     id: 'trivsel',
     name: 'Trivsel',
-    href: '/sortiment#trivsel',
+    href: '/sortiment?kategori=trivsel',
     image: placeholderImage,
   },
   {
     id: 'stald',
     name: 'Stald',
-    href: '/sortiment#stald',
+    href: '/sortiment?kategori=stald',
     image: staldImage,
   },
   {
     id: 'diverse',
     name: 'Diverse',
-    href: '/sortiment#diverse',
+    href: '/sortiment?kategori=diverse',
     image: diverseImage,
   },
   {
     id: 'vildtfugle',
     name: 'Vildtfugle',
-    href: '/sortiment#vildtfugle',
+    href: '/sortiment?kategori=vildtfugle',
     image: placeholderImage,
   },
 ] as const satisfies readonly ProductCategory[];
+
+/** A category id as used in URLs and filter state (e.g. "hoens", "foder"). */
+export type CategoryId = (typeof PRODUCT_CATEGORIES)[number]['id'];
+
+/** Ordered list of every valid category id — drives the filter UI order. */
+export const CATEGORY_IDS = PRODUCT_CATEGORIES.map(
+  (category) => category.id,
+) as CategoryId[];
+
+const CATEGORY_BY_ID = new Map<string, ProductCategory>(
+  PRODUCT_CATEGORIES.map((category) => [category.id, category]),
+);
+
+const CATEGORY_ID_BY_NAME = new Map<string, CategoryId>(
+  PRODUCT_CATEGORIES.map((category) => [category.name, category.id]),
+);
+
+/** Look up a category by its id, or undefined if the id is unknown. */
+export function getCategoryById(id: string): ProductCategory | undefined {
+  return CATEGORY_BY_ID.get(id);
+}
+
+/** Type guard: is this string one of our known category ids? */
+export function isCategoryId(value: string): value is CategoryId {
+  return CATEGORY_BY_ID.has(value);
+}
+
+/**
+ * Map a website-facing category display name (e.g. "Høns", produced by
+ * toWebsiteCategory) back to its url id (e.g. "hoens"). Returns undefined for
+ * names that don't correspond to a known category.
+ */
+export function categoryIdForName(name: string): CategoryId | undefined {
+  return CATEGORY_ID_BY_NAME.get(name);
+}

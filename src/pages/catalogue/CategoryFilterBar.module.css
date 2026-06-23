@@ -1,0 +1,331 @@
+/* Sticky toolbar that pins just below the site header (header height is
+   measured at runtime and exposed as --app-header-height by the layout). */
+.bar {
+  position: sticky;
+  top: var(--app-header-height, 4rem);
+  z-index: 40;
+  background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding-block: var(--space-3);
+}
+
+.controls {
+  position: relative;
+}
+
+/* --- Filter trigger button --------------------------------------------- */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 42px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.trigger:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+  box-shadow: var(--shadow-hover);
+}
+
+.triggerActive {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.triggerOpen {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-hover);
+}
+
+.funnelIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary-dark);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding-inline: 0.35rem;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.caret {
+  width: 7px;
+  height: 7px;
+  margin-left: 0.1rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 200ms ease;
+  opacity: 0.7;
+}
+
+.triggerOpen .caret {
+  transform: translateY(1px) rotate(225deg);
+}
+
+/* --- Dropdown menu ------------------------------------------------------ */
+.menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 50;
+  width: min(320px, calc(100vw - 2 * var(--space-4)));
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-dropdown);
+  animation: menuIn 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menuHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem 0.5rem;
+}
+
+.menuTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.clearLink {
+  border: 0;
+  background: none;
+  padding: 0.2rem 0.3rem;
+  color: var(--color-primary-dark);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+}
+
+.clearLink:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.clearLink:disabled {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: min(60vh, 360px);
+  overflow-y: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.5rem;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  text-align: left;
+  transition: background-color 130ms ease;
+}
+
+.option:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.option:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.optionChecked {
+  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  font-weight: 600;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  color: #fff;
+  transition:
+    background-color 130ms ease,
+    border-color 130ms ease;
+}
+
+.optionChecked .checkbox {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.checkIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.optionLabel {
+  flex: 1 1 auto;
+}
+
+.optionCount {
+  flex: 0 0 auto;
+  min-width: 1.6rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-border) 55%, transparent);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.optionChecked .optionCount {
+  background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  color: var(--color-primary-dark);
+}
+
+/* --- Active filter chips ------------------------------------------------ */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 34px;
+  padding: 0 0.4rem 0 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary-dark);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.chip:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  border-color: var(--color-primary);
+}
+
+.chipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.chip:hover .chipRemove {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.clearChips {
+  border: 0;
+  background: none;
+  padding: 0.3rem 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+}
+
+.clearChips:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+/* --- Result count ------------------------------------------------------- */
+.count {
+  margin: 0 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .count {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+
+  .trigger,
+  .caret,
+  .option,
+  .checkbox,
+  .chip {
+    transition: none;
+  }
+}
