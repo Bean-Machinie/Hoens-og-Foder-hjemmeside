@@ -15,7 +15,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { format, startOfToday } from 'date-fns';
 import { da } from 'date-fns/locale';
-import { SITE } from '@/config/site';
+import { SITE, RESERVATION } from '@/config/site';
 import type { Product } from '@/pages/catalogue/inventory';
 import 'react-international-phone/style.css';
 import styles from './ReserveAction.module.css';
@@ -27,9 +27,7 @@ interface ReserveActionProps {
 type PickupMode = 'today' | 'pick';
 
 const muiTheme = createTheme({
-  palette: {
-    primary: { main: '#5592a7', dark: '#477b8d' },
-  },
+  palette: { primary: { main: '#5592a7', dark: '#477b8d' } },
   typography: { fontFamily: 'inherit' },
 });
 
@@ -78,6 +76,8 @@ function ReserveAction({ product }: ReserveActionProps) {
   const fieldId = useId();
   const [open, setOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -104,7 +104,6 @@ function ReserveAction({ product }: ReserveActionProps) {
   const formValid = nameValid && phoneValid && dateValid;
 
   const positionCalendar = () => {
-    // Anchor to the "Vælg dag" button so the calendar drops down from it.
     const rect = dateButtonRef.current?.getBoundingClientRect();
     if (!rect) {
       return;
@@ -118,7 +117,6 @@ function ReserveAction({ product }: ReserveActionProps) {
       overflowsBottom && rect.top - calHeight - margin > 0
         ? rect.top - calHeight - margin
         : below;
-    // Right-align the calendar with the button, then clamp to the viewport.
     const preferredLeft = rect.right - calWidth;
     const left = Math.min(
       Math.max(margin, preferredLeft),
@@ -171,6 +169,8 @@ function ReserveAction({ product }: ReserveActionProps) {
 
   const resetForm = () => {
     setSubmitted(false);
+    setSubmitting(false);
+    setErrorMsg('');
     setShowErrors(false);
     setName('');
     setPhone('');
@@ -188,37 +188,77 @@ function ReserveAction({ product }: ReserveActionProps) {
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formValid || !pickupDate) {
       setShowErrors(true);
       return;
     }
 
+    setErrorMsg('');
     const prettyDate = format(pickupDate, 'EEEE d. MMMM yyyy', { locale: da });
-    const subject = `Reservation: ${product.title}`;
-    const body = [
-      'Hej Høns og Foder,',
-      '',
-      'Jeg vil gerne reservere denne vare:',
-      '',
-      `Vare: ${product.title}`,
-      product.price ? `Pris: ${product.price}` : '',
-      `Afhentning: ${prettyDate}`,
-      '',
-      `Navn: ${name}`,
-      `Telefon: ${phone}`,
-      email ? `E-mail: ${email}` : '',
-      message ? `Besked: ${message}` : '',
-      '',
-      'Venlig hilsen',
-      name,
-    ].join('\n');
 
-    window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent(
+    const fields = {
+      Vare: product.title,
+      Pris: product.price || '—',
+      Afhentningsdag: prettyDate,
+      Navn: name,
+      Telefon: phone,
+      'E-mail': email || 'Ikke angivet',
+      Besked: message || 'Ingen',
+    };
+    const subject = `Ny reservation: ${product.title}`;
+
+    if (RESERVATION.web3formsAccessKey) {
+      setSubmitting(true);
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            access_key: RESERVATION.web3formsAccessKey,
+            subject,
+            from_name: 'Høns og Foder – reservation',
+            replyto: email || undefined,
+            ...fields,
+          }),
+        });
+        const data = (await response.json()) as {
+          success?: boolean;
+          message?: string;
+        };
+        if (!data.success) {
+          throw new Error(data.message || 'Web3Forms returned an error');
+        }
+        setSubmitted(true);
+      } catch (error) {
+        console.error('Reservation send failed:', error);
+        setErrorMsg(
+          'Noget gik galt under afsendelsen. Prøv igen, eller ring til butikken.',
+        );
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    const body = [
+      'Ny reservation fra hjemmesiden:',
+      '',
+      `Vare: ${fields.Vare}`,
+      `Pris: ${fields.Pris}`,
+      `Afhentningsdag: ${fields.Afhentningsdag}`,
+      `Navn: ${fields.Navn}`,
+      `Telefon: ${fields.Telefon}`,
+      `E-mail: ${fields['E-mail']}`,
+      `Besked: ${fields.Besked}`,
+    ].join('\n');
+    window.location.href = `mailto:${RESERVATION.ownerEmail}?subject=${encodeURIComponent(
       subject,
     )}&body=${encodeURIComponent(body)}`;
-
     setSubmitted(true);
   };
 
@@ -242,8 +282,6 @@ function ReserveAction({ product }: ReserveActionProps) {
             className={styles.panel}
             aria-describedby={undefined}
             onClick={(event) => {
-              // The content fills the screen, so a click on the backdrop area
-              // lands on this element itself — treat that as "click outside".
               if (event.target === event.currentTarget) {
                 handleOpenChange(false);
               }
@@ -268,9 +306,9 @@ function ReserveAction({ product }: ReserveActionProps) {
                 <div className={styles.success} role="status">
                   <p className={styles.successTitle}>Tak for din reservation!</p>
                   <p className={styles.successText}>
-                    Vi har åbnet dit mailprogram med reservationen af{' '}
-                    <strong>{product.title}</strong>. Tryk send, så vender vi
-                    tilbage hurtigst muligt.
+                    Vi har sendt din reservation af{' '}
+                    <strong>{product.title}</strong> til butikken og vender
+                    tilbage til dig hurtigst muligt.
                   </p>
                   <Dialog.Close className={styles.successClose}>Luk</Dialog.Close>
                 </div>
@@ -288,7 +326,7 @@ function ReserveAction({ product }: ReserveActionProps) {
                         }`}
                         type="text"
                         autoComplete="name"
-                        placeholder="John Doe"
+                        placeholder="Dit fulde navn"
                         value={name}
                         onChange={(event) => setName(event.target.value)}
                       />
@@ -403,7 +441,7 @@ function ReserveAction({ product }: ReserveActionProps) {
 
                   <div className={styles.field}>
                     <label className={styles.label} htmlFor={`${fieldId}-email`}>
-                      E-mail <span className={styles.optional}></span>
+                      E-mail <span className={styles.optional}>(valgfri)</span>
                     </label>
                     <input
                       id={`${fieldId}-email`}
@@ -418,7 +456,7 @@ function ReserveAction({ product }: ReserveActionProps) {
 
                   <div className={styles.field}>
                     <label className={styles.label} htmlFor={`${fieldId}-message`}>
-                      Besked <span className={styles.optional}></span>
+                      Besked <span className={styles.optional}>(valgfri)</span>
                     </label>
                     <textarea
                       id={`${fieldId}-message`}
@@ -430,9 +468,15 @@ function ReserveAction({ product }: ReserveActionProps) {
                     />
                   </div>
 
-                  <button className={styles.submitButton} type="submit">
-                    Send reservering
+                  <button
+                    className={styles.submitButton}
+                    type="submit"
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Sender…' : 'Send reservering'}
                   </button>
+
+                  {errorMsg && <p className={styles.errorText}>{errorMsg}</p>}
                 </form>
               )}
             </div>

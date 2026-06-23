@@ -16,3 +16,17 @@ export const SITE = {
     { days: 'Søndag', hours: 'Lukket' },
   ],
 } as const;
+
+/**
+ * Reservations are emailed to the shop owner via Web3Forms (a free
+ * form-to-email service that works from a static site — no server needed).
+ *
+ * The access key is designed to live in frontend code — it only allows
+ * sending TO the registered owner address, so it's safe to commit.
+ */
+export const RESERVATION = {
+  /** Where reservation notifications are sent (the Web3Forms account email). */
+  ownerEmail: 'thomasbenfer@gmail.com',
+  /** Web3Forms access key (registered to the owner email above). */
+  web3formsAccessKey: 'b39812b8-bd43-4051-abec-fab00e1089e3',
+} as const;
