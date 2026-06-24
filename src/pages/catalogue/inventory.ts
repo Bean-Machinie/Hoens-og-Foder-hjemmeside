@@ -143,6 +143,7 @@ export type ProductStatus =
   | 'Nyhed'
   | 'Bestillingsvare'
   | 'Midlertidigt udsolgt'
+  | 'Flere Varianter'
   | '';
 
 const WEBSITE_CATEGORY_BY_SHEET_CATEGORY: Record<string, string> = {
@@ -259,6 +260,7 @@ function toProductStatus(value: string): ProductStatus {
     nyhed: 'Nyhed',
     bestillingsvare: 'Bestillingsvare',
     'midlertidigt udsolgt': 'Midlertidigt udsolgt',
+    'flere varianter': 'Flere Varianter',
   };
 
   return statuses[normalized] ?? '';

@@ -150,6 +150,13 @@ function CataloguePage() {
                 // The cheapest in-stock variant drives the card: its image,
                 // its (lowest) price, and its status badge.
                 const lead = defaultVariant(group);
+                // If any row in the group is flagged "Flere Varianter", that
+                // badge takes priority; otherwise the lead variant's status.
+                const cardStatus = group.variants.some(
+                  (v) => v.status === 'Flere Varianter',
+                )
+                  ? 'Flere Varianter'
+                  : lead.status;
 
                 return (
                   <Link
@@ -165,17 +172,19 @@ function CataloguePage() {
                           : ''
                       }`}
                     >
-                      {lead.status && (
+                      {cardStatus && (
                         <span
                           className={`${styles.status} ${
-                            lead.status === 'Nyhed'
+                            cardStatus === 'Nyhed'
                               ? styles.newProduct
-                              : lead.status === 'Bestillingsvare'
+                              : cardStatus === 'Bestillingsvare'
                                 ? styles.orderOnly
-                                : styles.temporarilySoldOut
+                                : cardStatus === 'Flere Varianter'
+                                  ? styles.multipleVariants
+                                  : styles.temporarilySoldOut
                           }`}
                         >
-                          {lead.status}
+                          {cardStatus}
                         </span>
                       )}
                       <img

@@ -120,7 +120,7 @@ function ItemDetailPage() {
               selected.status === 'Midlertidigt udsolgt' ? styles.mediaSoldOut : ''
             }`}
           >
-            {selected.status && (
+            {selected.status && selected.status !== 'Flere Varianter' && (
               <span className={`${styles.statusBadge} ${statusClass(selected.status)}`}>
                 {selected.status}
               </span>

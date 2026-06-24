@@ -122,6 +122,10 @@
   background: #7b3535;
 }
 
+.multipleVariants {
+  background: var(--color-primary);
+}
+
 .image {
   width: 100%;
   aspect-ratio: 1 / 1;
