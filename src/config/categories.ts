@@ -4,7 +4,7 @@ import hoensImage from '@/assets/images/categories/høns.webp';
 import staldImage from '@/assets/images/categories/stald.webp';
 import sundhedImage from '@/assets/images/categories/sundhed.webp';
 import udstyrImage from '@/assets/images/categories/udstyr.webp';
-import placeholderImage from '@/assets/images/inventory/placeholder.webp';
+import vildtfugleImage from '@/assets/images/categories/vildtfugle.webp';
 
 export interface ProductCategory {
   id: string;
@@ -19,8 +19,6 @@ export interface ProductCategory {
  *
  * These are the website-facing categories that the Google Sheet's "Kategori"
  * column maps onto (see toWebsiteCategory in pages/catalogue/inventory.ts).
- * Vildtfugle has no dedicated artwork yet, so it falls back to the shared
- * placeholder image.
  */
 export const PRODUCT_CATEGORIES = [
   { id: 'hoens', name: 'Høns', href: '/sortiment?kategori=hoens', image: hoensImage },
@@ -53,7 +51,7 @@ export const PRODUCT_CATEGORIES = [
     id: 'vildtfugle',
     name: 'Vildtfugle',
     href: '/sortiment?kategori=vildtfugle',
-    image: placeholderImage,
+    image: vildtfugleImage,
   },
 ] as const satisfies readonly ProductCategory[];
 
