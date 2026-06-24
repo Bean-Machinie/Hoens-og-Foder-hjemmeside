@@ -481,4 +481,7 @@
   .reserveTrigger,
   .reserveTrigger:hover,
   .reserveTrigger:active,
-  .submit
+  .submit {
+    transition: none;
+  }
+}

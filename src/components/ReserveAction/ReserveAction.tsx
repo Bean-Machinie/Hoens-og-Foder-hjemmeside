@@ -198,16 +198,21 @@ function ReserveAction({ product }: ReserveActionProps) {
     setErrorMsg('');
     const prettyDate = format(pickupDate, 'EEEE d. MMMM yyyy', { locale: da });
 
-    const fields = {
-      Vare: product.title,
-      Pris: product.price || '—',
-      Afhentningsdag: prettyDate,
-      Navn: name,
-      Telefon: phone,
-      'E-mail': email || 'Ikke angivet',
-      Besked: message || 'Ingen',
-    };
-    const subject = `Ny reservation: ${product.title}`;
+    const subject = `NY RESERVATION: ${product.title}`;
+    const divider = '────────────────────';
+    const body = [
+      'En kunde har reserveret en vare i gårdbutikken.',
+      divider,
+      `VARE: ${product.title}`,
+      `PRIS: ${product.price || '—'}`,
+      `AFHENTNING: ${prettyDate}`,
+      divider,
+      `NAVN: ${name}`,
+      `TELEFON: ${phone}`,
+      `E-MAIL: ${email || 'Ikke angivet'}`,
+      divider,
+      `BESKED FRA KUNDEN: ${message || 'Ingen'}`,
+    ].join('\n');
 
     if (RESERVATION.web3formsAccessKey) {
       setSubmitting(true);
@@ -223,7 +228,7 @@ function ReserveAction({ product }: ReserveActionProps) {
             subject,
             from_name: 'Høns og Foder – reservation',
             replyto: email || undefined,
-            ...fields,
+            message: body,
           }),
         });
         const data = (await response.json()) as {
@@ -245,17 +250,6 @@ function ReserveAction({ product }: ReserveActionProps) {
       return;
     }
 
-    const body = [
-      'Ny reservation fra hjemmesiden:',
-      '',
-      `Vare: ${fields.Vare}`,
-      `Pris: ${fields.Pris}`,
-      `Afhentningsdag: ${fields.Afhentningsdag}`,
-      `Navn: ${fields.Navn}`,
-      `Telefon: ${fields.Telefon}`,
-      `E-mail: ${fields['E-mail']}`,
-      `Besked: ${fields.Besked}`,
-    ].join('\n');
     window.location.href = `mailto:${RESERVATION.ownerEmail}?subject=${encodeURIComponent(
       subject,
     )}&body=${encodeURIComponent(body)}`;
