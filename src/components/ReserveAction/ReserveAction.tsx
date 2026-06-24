@@ -204,6 +204,7 @@ function ReserveAction({ product }: ReserveActionProps) {
       'En kunde har reserveret en vare i gårdbutikken.',
       divider,
       `VARE: ${product.title}`,
+      `STREGKODE: ${product.barcode || '—'}`,
       `PRIS: ${product.price || '—'}`,
       `AFHENTNING: ${prettyDate}`,
       divider,

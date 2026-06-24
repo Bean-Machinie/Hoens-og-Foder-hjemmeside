@@ -4,9 +4,12 @@ import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import ReserveAction from '@/components/ReserveAction/ReserveAction';
 import { SITE } from '@/config/site';
 import {
+  defaultVariant,
   fetchProducts,
-  findProductBySlug,
+  findGroupBySlug,
+  groupProducts,
   type Product,
+  type ProductGroup,
 } from '@/pages/catalogue/inventory';
 import styles from './ItemDetailPage.module.css';
 
@@ -24,25 +27,26 @@ function statusClass(status: Product['status']): string {
 
 function ItemDetailPage() {
   const { slug = '' } = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [group, setGroup] = useState<ProductGroup | null>(null);
+  const [selected, setSelected] = useState<Product | null>(null);
   const [status, setStatus] = useState<Status>('loading');
 
   useEffect(() => {
     let cancelled = false;
     setStatus('loading');
-    setProduct(null);
+    setGroup(null);
+    setSelected(null);
 
     fetchProducts()
       .then((all) => {
         if (cancelled) {
           return;
         }
-        const match = findProductBySlug(
-          all.filter((item) => item.visible),
-          slug,
-        );
+        const groups = groupProducts(all.filter((item) => item.visible));
+        const match = findGroupBySlug(groups, slug);
         if (match) {
-          setProduct(match);
+          setGroup(match);
+          setSelected(defaultVariant(match));
           setStatus('ready');
         } else {
           setStatus('notfound');
@@ -63,13 +67,13 @@ function ItemDetailPage() {
 
   // Keep the browser tab title in sync with the current product.
   useEffect(() => {
-    if (product) {
-      document.title = `${product.title} – ${SITE.name}`;
+    if (group) {
+      document.title = `${group.title} – ${SITE.name}`;
     }
     return () => {
       document.title = SITE.name;
     };
-  }, [product]);
+  }, [group]);
 
   return (
     <section className={`container ${styles.page}`}>
@@ -109,22 +113,22 @@ function ItemDetailPage() {
         </div>
       )}
 
-      {status === 'ready' && product && (
+      {status === 'ready' && group && selected && (
         <article className={styles.layout}>
           <div
             className={`${styles.media} ${
-              product.status === 'Midlertidigt udsolgt' ? styles.mediaSoldOut : ''
+              selected.status === 'Midlertidigt udsolgt' ? styles.mediaSoldOut : ''
             }`}
           >
-            {product.status && (
-              <span className={`${styles.statusBadge} ${statusClass(product.status)}`}>
-                {product.status}
+            {selected.status && (
+              <span className={`${styles.statusBadge} ${statusClass(selected.status)}`}>
+                {selected.status}
               </span>
             )}
             <img
               className={styles.image}
-              src={product.imageUrl || placeholderImage}
-              alt={product.title}
+              src={selected.imageUrl || placeholderImage}
+              alt={group.title}
               onError={(event) => {
                 const img = event.currentTarget;
                 if (img.src !== placeholderImage) {
@@ -136,16 +140,47 @@ function ItemDetailPage() {
 
           <div className={styles.info}>
             <header className={styles.header}>
-              <p className={styles.category}>{product.category}</p>
-              <h1 className={styles.title}>{product.title}</h1>
-              {product.price && <p className={styles.price}>{product.price}</p>}
+              <p className={styles.category}>{group.category}</p>
+              <h1 className={styles.title}>{group.title}</h1>
+              {selected.price && <p className={styles.price}>{selected.price}</p>}
             </header>
+
+            {group.isGrouped && (
+              <div className={styles.variants}>
+                <span className={styles.variantLabel} id="variant-label">
+                  Vælg variant
+                </span>
+                <div
+                  className={styles.variantOptions}
+                  role="group"
+                  aria-labelledby="variant-label"
+                >
+                  {group.variants.map((variant) => {
+                    const active = variant === selected;
+                    const soldOut = variant.status === 'Midlertidigt udsolgt';
+                    return (
+                      <button
+                        key={variant.barcode || variant.title}
+                        type="button"
+                        className={`${styles.variantChip} ${
+                          active ? styles.variantChipActive : ''
+                        } ${soldOut ? styles.variantChipSoldOut : ''}`}
+                        aria-pressed={active}
+                        onClick={() => setSelected(variant)}
+                      >
+                        {variant.variant || variant.title}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Always rendered with a reserved min-height so the layout stays
                 structured even for items without a description. */}
             <div className={styles.description}>
-              {product.description.trim() ? (
-                product.description
+              {selected.description.trim() ? (
+                selected.description
                   .split(/\n+/)
                   .filter((line) => line.trim() !== '')
                   .map((line, index) => <p key={index}>{line}</p>)
@@ -157,7 +192,7 @@ function ItemDetailPage() {
             </div>
 
             <div className={styles.reserve}>
-              <ReserveAction product={product} />
+              <ReserveAction product={selected} />
             </div>
           </div>
         </article>
