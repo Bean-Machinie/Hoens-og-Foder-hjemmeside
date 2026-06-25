@@ -16,7 +16,7 @@ function CatalogueSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'center',
     loop: true,
-    skipSnaps: false,
+    skipSnaps: true,
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
