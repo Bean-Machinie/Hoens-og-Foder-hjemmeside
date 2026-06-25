@@ -1,7 +1,9 @@
 import { SITE } from '@/config/site';
+import { useInformation } from '@/context/InformationContext';
 import styles from './Footer.module.css';
 
 function Footer() {
+  const { openingHours } = useInformation();
   const year = new Date().getFullYear();
   const telHref = `tel:${SITE.phone.replace(/\s+/g, '')}`;
 
@@ -37,8 +39,8 @@ function Footer() {
           </dl>
 
           <dl className={styles.hours}>
-            {SITE.openingHours.map((row) => (
-              <div key={row.days} className={styles.hoursRow}>
+            {openingHours.map((row, index) => (
+              <div key={`${row.days}-${index}`} className={styles.hoursRow}>
                 <dt className={styles.hoursDays}>{row.days}</dt>
                 <dd className={styles.hoursTime}>{row.hours}</dd>
               </div>

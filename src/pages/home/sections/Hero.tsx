@@ -1,8 +1,11 @@
 import heroImage from '@/assets/images/Hero_Image.webp';
 import { SITE } from '@/config/site';
+import { useInformation } from '@/context/InformationContext';
 import styles from './Hero.module.css';
 
 function Hero() {
+  const { openingHours } = useInformation();
+
   return (
     <section className={styles.hero}>
       <div className={styles.imageWrap} aria-hidden="true">
@@ -16,8 +19,8 @@ function Hero() {
           <div className={styles.hours}>
             <p className={styles.hoursTitle}>Åbningstider:</p>
             <div className={styles.hoursList}>
-              {SITE.openingHours.map((row) => (
-                <p key={row.days}>
+              {openingHours.map((row, index) => (
+                <p key={`${row.days}-${index}`}>
                   {row.days}: {row.hours}
                 </p>
               ))}

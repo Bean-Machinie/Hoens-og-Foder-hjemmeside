@@ -169,7 +169,7 @@ export function toWebsiteCategory(sheetCategory: string): string {
   return WEBSITE_CATEGORY_BY_SHEET_CATEGORY[normalized] ?? 'Diverse';
 }
 
-function parseCsv(text: string): Record<string, string>[] {
+export function parseCsv(text: string): Record<string, string>[] {
   const rows: string[][] = [];
   let field = '';
   let row: string[] = [];

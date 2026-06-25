@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import { InventoryProvider } from '@/context/InventoryContext';
+import { InformationProvider } from '@/context/InformationContext';
 import ScrollRestoration from './ScrollRestoration';
 import TopPanel from './TopPanel';
 import styles from './Layout.module.css';
@@ -43,13 +44,15 @@ function Layout() {
 
   return (
     <InventoryProvider>
-      <ScrollRestoration />
-      <div className={styles.shell} ref={shellRef}>
-        <TopPanel />
-        <main className={styles.main}>
-          <Outlet />
-        </main>
-      </div>
+      <InformationProvider>
+        <ScrollRestoration />
+        <div className={styles.shell} ref={shellRef}>
+          <TopPanel />
+          <main className={styles.main}>
+            <Outlet />
+          </main>
+        </div>
+      </InformationProvider>
     </InventoryProvider>
   );
 }
