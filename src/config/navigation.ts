@@ -30,10 +30,10 @@ export type NavItem =
 export const NAV_ITEMS: NavItem[] = [
   {
     type: 'dropdown',
-    label: 'Sortiment',
+    label: 'Varer',
     items: [
       {
-        label: 'Alt sortiment',
+        label: 'Alle varer',
         href: '/sortiment',
         dividerAfter: true,
         icon: boxIcon,
