@@ -314,9 +314,60 @@
 }
 
 @media (max-width: 640px) {
-  .count {
+  .inner {
+    flex-wrap: nowrap;
+    gap: 0.45rem;
+    padding-block: 0.45rem;
+  }
+
+  .controls {
+    flex: 0 0 auto;
+  }
+
+  .trigger {
+    min-height: 32px;
+    gap: 0.3rem;
+    padding-inline: 0.55rem;
+    border-radius: 7px;
+    font-size: 0.78rem;
+  }
+
+  .funnelIcon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .badge {
+    width: 1.05rem;
+    height: 1.05rem;
+    font-size: 0.64rem;
+  }
+
+  .caret {
+    width: 5px;
+    height: 5px;
     margin-left: 0;
-    flex-basis: 100%;
+  }
+
+  .menu {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    right: auto;
+    left: 0;
+    z-index: 160;
+    width: min(320px, calc(100vw - 1.5rem));
+    max-height: min(70vh, 420px);
+    overflow: auto;
+  }
+
+  .chips {
+    display: none;
+  }
+
+  .count {
+    margin-left: auto;
+    flex: 0 0 auto;
+    font-size: 0.75rem;
   }
 }
 

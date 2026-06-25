@@ -226,6 +226,98 @@
   }
 }
 
+@media (max-width: 640px) {
+  .section {
+    padding-block: 1.25rem 2rem;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .cardLink,
+  .card {
+    border-radius: 8px;
+  }
+
+  .cardLink:focus-visible {
+    outline-offset: 2px;
+  }
+
+  .cardLink:hover .card {
+    box-shadow:
+      0 10px 20px rgba(43, 38, 32, 0.12),
+      0 2px 6px rgba(43, 38, 32, 0.08);
+    transform: translateY(-3px);
+  }
+
+  .status {
+    top: 0.28rem;
+    right: 0.28rem;
+    max-width: calc(100% - 0.56rem);
+    padding: 0.2rem 0.34rem;
+    font-size: 0.54rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .body {
+    height: 5.7rem;
+    padding: 0.48rem;
+  }
+
+  .title {
+    margin-bottom: 0.18rem;
+    font-size: 0.68rem;
+    line-height: 1.18;
+    min-height: 2.36em;
+  }
+
+  .category {
+    margin-bottom: 0.16rem;
+    font-size: 0.58rem;
+  }
+
+  .price {
+    font-size: 0.66rem;
+    line-height: 1.15;
+  }
+
+  .skeletonTitle {
+    height: 0.7rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .skeletonLine {
+    height: 0.62rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .grid {
+    gap: 0.45rem;
+  }
+
+  .body {
+    height: 5.45rem;
+    padding: 0.4rem;
+  }
+
+  .title {
+    font-size: 0.64rem;
+  }
+
+  .category {
+    font-size: 0.54rem;
+  }
+
+  .price {
+    font-size: 0.62rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton::after {
     animation: none;
