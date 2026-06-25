@@ -10,12 +10,10 @@ import {
   type CategoryId,
 } from '@/config/categories';
 import type { CategoryFilter } from './useCategoryFilter';
-import type { ProductSearch } from './useProductSearch';
 import styles from './CategoryFilterBar.module.css';
 
 interface CategoryFilterBarProps {
   filter: CategoryFilter;
-  search: ProductSearch;
   /** Number of products in each category (across all visible products). */
   counts: Record<CategoryId, number>;
   /** Total products available (before filtering). */
@@ -82,36 +80,8 @@ function FunnelIcon() {
   );
 }
 
-function SearchIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className={styles.searchIcon}
-      viewBox="0 0 16 16"
-      focusable="false"
-    >
-      <circle
-        cx="7"
-        cy="7"
-        r="4.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <path
-        d="m11 11 3.5 3.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function CategoryFilterBar({
   filter,
-  search,
   counts,
   totalCount,
   visibleCount,
@@ -119,9 +89,7 @@ function CategoryFilterBar({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const menuId = useId();
-  const searchId = useId();
 
   const activeCount = filter.selected.length;
 
@@ -151,13 +119,6 @@ function CategoryFilterBar({
     if (event.key === 'Escape') {
       event.preventDefault();
       closeAndRefocus();
-    }
-  };
-
-  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape' && search.query) {
-      event.preventDefault();
-      search.clear();
     }
   };
 
@@ -238,43 +199,45 @@ function CategoryFilterBar({
           )}
         </div>
 
-        {/* Free-text fuzzy search. Replaces the old removable-chip row: the
-            active-filter count now lives on the trigger badge, which frees this
-            space for a far more useful search field. */}
-        <div className={styles.search} role="search">
-          <label className="sr-only" htmlFor={searchId}>
-            Søg i produkter
-          </label>
-          <span className={styles.searchIconWrap} aria-hidden="true">
-            <SearchIcon />
-          </span>
-          <input
-            className={styles.searchInput}
-            id={searchId}
-            onChange={(event) => search.setQuery(event.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            placeholder="Søg – navn, farve, type, størrelse …"
-            ref={searchInputRef}
-            type="search"
-            value={search.query}
-          />
-          {search.query && (
-            <button
-              aria-label="Ryd søgning"
-              className={styles.searchClear}
-              onClick={() => {
-                search.clear();
-                searchInputRef.current?.focus();
-              }}
-              type="button"
-            >
-              <CloseIcon />
-            </button>
-          )}
-        </div>
+        {/* Active selections as removable chips. */}
+        {!filter.isEmpty && (
+          <ul aria-label="Aktive filtre" className={styles.chips}>
+            {filter.selected.map((id) => {
+              const category = PRODUCT_CATEGORIES.find((c) => c.id === id);
+              if (!category) {
+                return null;
+              }
+
+              return (
+                <li key={id}>
+                  <button
+                    className={styles.chip}
+                    onClick={() => filter.toggle(id)}
+                    type="button"
+                  >
+                    <span>{category.name}</span>
+                    <span aria-hidden="true" className={styles.chipRemove}>
+                      <CloseIcon />
+                    </span>
+                    <span className="sr-only">Fjern filter</span>
+                  </button>
+                </li>
+              );
+            })}
+            <li>
+              <button
+                className={styles.clearChips}
+                onClick={filter.clear}
+                type="button"
+              >
+                Ryd alt
+              </button>
+            </li>
+          </ul>
+        )}
 
         <p className={styles.count}>
-          {filter.isEmpty && search.isEmpty
+          {filter.isEmpty
             ? `${totalCount} produkter`
             : `${visibleCount} af ${totalCount} produkter`}
         </p>

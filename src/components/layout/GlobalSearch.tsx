@@ -1,0 +1,297 @@
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
+import { useNavigate } from 'react-router-dom';
+import placeholderImage from '@/assets/images/inventory/placeholder.webp';
+import { useInventory } from '@/context/InventoryContext';
+import {
+  defaultVariant,
+  groupSlug,
+  type ProductGroup,
+} from '@/pages/catalogue/inventory';
+import { createProductIndex, searchGroups } from '@/pages/catalogue/productSearch';
+import styles from './GlobalSearch.module.css';
+
+/** Most results we ever show in the dropdown — keeps it scannable. */
+const MAX_RESULTS = 7;
+
+function SearchIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className={styles.icon}
+      viewBox="0 0 16 16"
+      focusable="false"
+    >
+      <circle
+        cx="7"
+        cy="7"
+        r="4.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="m11 11 3.5 3.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className={styles.clearIcon}
+      viewBox="0 0 16 16"
+      focusable="false"
+    >
+      <path
+        d="M4 4 12 12 M12 4 4 12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Site-wide product search. Available in the header on every page: as the user
+ * types it shows a compact autocomplete dropdown (thumbnail + title + price)
+ * powered by the same fuzzy Fuse.js index the catalogue uses. Selecting a
+ * result navigates straight to that product's page.
+ */
+function GlobalSearch() {
+  const navigate = useNavigate();
+  const { groups, status } = useInventory();
+
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const listboxId = useId();
+  const optionId = (index: number) => `${listboxId}-option-${index}`;
+
+  // Build the fuzzy index once per catalogue, not per keystroke.
+  const index = useMemo(() => createProductIndex(groups), [groups]);
+
+  const trimmed = query.trim();
+  const hasQuery = trimmed.length > 0;
+
+  const allMatches = useMemo(
+    () => (hasQuery ? searchGroups(index, groups, trimmed) : []),
+    [index, groups, trimmed, hasQuery],
+  );
+  const results = allMatches.slice(0, MAX_RESULTS);
+
+  const showPanel = open && hasQuery;
+
+  // Whenever the query changes, reset the keyboard cursor so the highlight
+  // doesn't point at a stale row.
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [trimmed]);
+
+  // Close on outside click.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [open]);
+
+  const reset = () => {
+    setQuery('');
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const goToGroup = (group: ProductGroup) => {
+    navigate(`/sortiment/${groupSlug(group)}`);
+    reset();
+    inputRef.current?.blur();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (!showPanel) {
+        setOpen(true);
+        return;
+      }
+      setActiveIndex((current) =>
+        results.length === 0 ? -1 : Math.min(current + 1, results.length - 1),
+      );
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActiveIndex((current) => Math.max(current - 1, 0));
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      const target =
+        activeIndex >= 0
+          ? results[activeIndex]
+          : results.length === 1
+            ? results[0]
+            : undefined;
+      if (target) {
+        event.preventDefault();
+        goToGroup(target);
+      }
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      if (hasQuery) {
+        event.preventDefault();
+        reset();
+      } else {
+        setOpen(false);
+      }
+    }
+  };
+
+  const activeDescendant =
+    showPanel && activeIndex >= 0 ? optionId(activeIndex) : undefined;
+
+  return (
+    <div className={styles.root} ref={containerRef}>
+      <div
+        className={`${styles.field} ${showPanel ? styles.fieldOpen : ''}`}
+        role="search"
+      >
+        <span className={styles.iconWrap} aria-hidden="true">
+          <SearchIcon />
+        </span>
+        <input
+          aria-activedescendant={activeDescendant}
+          aria-autocomplete="list"
+          aria-controls={showPanel ? listboxId : undefined}
+          aria-expanded={showPanel}
+          aria-label="Søg efter produkter"
+          autoComplete="off"
+          className={styles.input}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={handleKeyDown}
+          placeholder="Søg efter produkter…"
+          ref={inputRef}
+          role="combobox"
+          type="text"
+          value={query}
+        />
+        {hasQuery && (
+          <button
+            aria-label="Ryd søgning"
+            className={styles.clear}
+            onClick={() => {
+              reset();
+              inputRef.current?.focus();
+            }}
+            type="button"
+          >
+            <CloseIcon />
+          </button>
+        )}
+      </div>
+
+      {showPanel && (
+        <div className={styles.panel}>
+          {status === 'loading' ? (
+            <p className={styles.hint}>Indlæser produkter…</p>
+          ) : results.length === 0 ? (
+            <p className={styles.hint}>
+              Ingen produkter matcher “{trimmed}”.
+            </p>
+          ) : (
+            <>
+              <ul className={styles.list} id={listboxId} role="listbox">
+                {results.map((group, position) => {
+                  const lead = defaultVariant(group);
+                  const active = position === activeIndex;
+                  return (
+                    <li key={group.key} role="presentation">
+                      <button
+                        aria-selected={active}
+                        className={`${styles.option} ${
+                          active ? styles.optionActive : ''
+                        }`}
+                        id={optionId(position)}
+                        // Use pointer-down so the click registers before the
+                        // input's blur can tear the panel down.
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          goToGroup(group);
+                        }}
+                        onMouseEnter={() => setActiveIndex(position)}
+                        role="option"
+                        type="button"
+                      >
+                        <img
+                          alt=""
+                          aria-hidden="true"
+                          className={styles.thumb}
+                          loading="lazy"
+                          onError={(event) => {
+                            const img = event.currentTarget;
+                            if (img.src !== placeholderImage) {
+                              img.src = placeholderImage;
+                            }
+                          }}
+                          src={lead.imageUrl || placeholderImage}
+                        />
+                        <span className={styles.text}>
+                          <span className={styles.title}>{group.title}</span>
+                          <span className={styles.meta}>
+                            <span className={styles.category}>
+                              {group.category}
+                            </span>
+                            <span className={styles.price}>{lead.price}</span>
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+              {allMatches.length > results.length && (
+                <p className={styles.more}>
+                  Viser {results.length} af {allMatches.length} resultater —
+                  skriv lidt mere for at indsnævre.
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default GlobalSearch;

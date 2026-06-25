@@ -238,105 +238,70 @@
   color: var(--color-primary-dark);
 }
 
-/* --- Free-text search field --------------------------------------------- */
-.search {
-  position: relative;
+/* --- Active filter chips ------------------------------------------------ */
+.chips {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  /* Grow to fill the space the old chip row used to occupy, but stay within
-     sensible bounds on very narrow and very wide viewports. */
-  flex: 1 1 240px;
-  min-width: 170px;
-  max-width: 440px;
+  gap: 0.4rem;
 }
 
-.searchIconWrap {
-  position: absolute;
-  left: 0.7rem;
+.chip {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  pointer-events: none;
-}
-
-.searchIcon {
-  width: 16px;
-  height: 16px;
-}
-
-.searchInput {
-  width: 100%;
-  min-height: 42px;
-  padding: 0 2.4rem 0 2.3rem;
-  border: 1px solid var(--color-border);
+  gap: 0.35rem;
+  height: 34px;
+  padding: 0 0.4rem 0 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
   border-radius: 8px;
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: 0.95rem;
-  box-shadow: var(--shadow);
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.searchInput::placeholder {
-  color: var(--color-text-muted);
-  opacity: 0.85;
-}
-
-.searchInput:hover {
-  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow:
-    var(--shadow-hover),
-    0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
-}
-
-/* Hide the native (webkit) search clear button — we render our own so it can
-   be styled and labelled for screen readers. */
-.searchInput::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.searchClear {
-  position: absolute;
-  right: 0.45rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border: 0;
-  border-radius: 999px;
-  background-color: color-mix(in srgb, var(--color-border) 55%, transparent);
-  color: var(--color-text-muted);
-  cursor: pointer;
+  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary-dark);
+  font-size: 0.88rem;
+  font-weight: 600;
   transition:
     background-color 140ms ease,
-    color 140ms ease;
+    border-color 140ms ease;
 }
 
-.searchClear:hover {
-  background-color: var(--color-primary);
-  color: #fff;
+.chip:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  border-color: var(--color-primary);
 }
 
-.searchClear:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+.chipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
 
 .closeIcon {
   display: block;
   width: 9px;
   height: 9px;
+}
+
+.chip:hover .chipRemove {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.clearChips {
+  border: 0;
+  background: none;
+  padding: 0.3rem 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+}
+
+.clearChips:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
 }
 
 /* --- Result count ------------------------------------------------------- */
@@ -346,16 +311,6 @@
   font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
-}
-
-@media (max-width: 760px) {
-  /* Let the search field take the full row once things get tight, so it never
-     gets squeezed down to an unusable width next to the filter button. */
-  .search {
-    flex-basis: 100%;
-    max-width: none;
-    order: 3;
-  }
 }
 
 @media (max-width: 640px) {
@@ -393,29 +348,12 @@
   border-radius: 8px;
 }
 
-/* Same footprint as the real .search field. */
-.skeletonSearch {
-  flex: 1 1 240px;
-  min-width: 170px;
-  max-width: 440px;
-  height: 42px;
-  border-radius: 8px;
-}
-
 /* Mirrors .count: pushed to the right, drops full-width under 640px. */
 .skeletonCount {
   margin-left: auto;
   width: 104px;
   height: 0.9rem;
   border-radius: 4px;
-}
-
-@media (max-width: 760px) {
-  .skeletonSearch {
-    flex-basis: 100%;
-    max-width: none;
-    order: 3;
-  }
 }
 
 @media (max-width: 640px) {
@@ -443,7 +381,8 @@
   .trigger,
   .caret,
   .option,
-  .checkbox {
+  .checkbox,
+  .chip {
     transition: none;
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import {
@@ -8,15 +8,11 @@ import {
 } from '@/config/categories';
 import {
   defaultVariant,
-  fetchProducts,
-  groupProducts,
   groupSlug,
-  type Product,
   type ProductGroup,
 } from './inventory';
+import { useInventory } from '@/context/InventoryContext';
 import { useCategoryFilter } from './useCategoryFilter';
-import { useProductSearch } from './useProductSearch';
-import { createProductIndex, searchGroups } from './productSearch';
 import CategoryFilterBar from './CategoryFilterBar';
 import FilterBarSkeleton from './FilterBarSkeleton';
 import styles from './CataloguePage.module.css';
@@ -41,72 +37,25 @@ function countByCategory(groups: ProductGroup[]): Record<CategoryId, number> {
 }
 
 function CataloguePage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
-    'loading',
-  );
+  // Inventory is loaded once, app-wide, and shared via context.
+  const { groups, status } = useInventory();
   const filter = useCategoryFilter();
-  const search = useProductSearch();
-
-  useEffect(() => {
-    let cancelled = false;
-
-    fetchProducts()
-      .then((all) => {
-        if (cancelled) {
-          return;
-        }
-        const visible = all.filter((product) => product.visible);
-        setProducts(visible);
-        setStatus('ready');
-      })
-      .catch((error) => {
-        if (cancelled) {
-          return;
-        }
-        console.error('Failed to load inventory:', error);
-        setStatus('error');
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Collapse variant rows into catalogue entries. Only recompute when the
-  // underlying product list changes.
-  const groups = useMemo(() => groupProducts(products), [products]);
 
   // Counts only change when the catalogue entries change, so memoise them.
   const counts = useMemo(() => countByCategory(groups), [groups]);
 
-  // Build the fuzzy-search index once per catalogue, not on every keystroke.
-  const searchIndex = useMemo(() => createProductIndex(groups), [groups]);
-
-  // The actual filtering. First apply the free-text fuzzy search (which also
-  // orders results by relevance), then narrow by the selected categories. Both
-  // steps are skipped when inactive, so the natural catalogue order is kept.
+  // The actual filtering. Memoised on (groups, selection) so toggling a filter
+  // never re-scans the list unless something genuinely changed.
   const filteredGroups = useMemo(() => {
-    const searched = search.isEmpty
-      ? groups
-      : searchGroups(searchIndex, groups, search.query);
-
     if (filter.isEmpty) {
-      return searched;
+      return groups;
     }
 
-    return searched.filter((group) => {
+    return groups.filter((group) => {
       const id = categoryIdForName(group.category);
       return id !== undefined && filter.selectedSet.has(id);
     });
-  }, [
-    groups,
-    searchIndex,
-    search.isEmpty,
-    search.query,
-    filter.isEmpty,
-    filter.selectedSet,
-  ]);
+  }, [groups, filter.isEmpty, filter.selectedSet]);
 
   return (
     <>
@@ -115,7 +64,6 @@ function CataloguePage() {
       {status === 'ready' && (
         <CategoryFilterBar
           filter={filter}
-          search={search}
           counts={counts}
           totalCount={groups.length}
           visibleCount={filteredGroups.length}
@@ -153,16 +101,11 @@ function CataloguePage() {
           (filteredGroups.length === 0 ? (
             <div className={styles.empty}>
               <p className={styles.emptyTitle}>
-                {!search.isEmpty
-                  ? `Ingen produkter matcher “${search.query.trim()}”.`
-                  : 'Ingen produkter i de valgte kategorier.'}
+                Ingen produkter i de valgte kategorier.
               </p>
               <button
                 className={styles.emptyButton}
-                onClick={() => {
-                  filter.clear();
-                  search.clear();
-                }}
+                onClick={filter.clear}
                 type="button"
               >
                 Ryd filtre

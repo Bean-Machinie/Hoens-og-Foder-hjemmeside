@@ -48,11 +48,20 @@
   transform: translateZ(0) scale(1.025);
 }
 
-.metaArea {
+.leftArea {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.searchArea {
   justify-self: end;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  width: 100%;
+  min-width: 0;
 }
 
 .navBar {
@@ -249,16 +258,22 @@
 @media (max-width: 720px) {
   .topBarInner {
     min-height: 3.5rem;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
   }
 
-  .topBarInner > :first-child {
+  /* Hide the Facebook callout on small screens so the brand + search fit. */
+  .leftArea {
     display: none;
   }
 
   .brand {
     justify-self: start;
     font-size: 1.25rem;
+  }
+
+  .searchArea {
+    min-width: 0;
   }
 
   .navBar {

@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
+import { InventoryProvider } from '@/context/InventoryContext';
 import TopPanel from './TopPanel';
 import styles from './Layout.module.css';
 
 /**
  * App shell shared by every page: the top panel and the routed page content.
  * The footer (contact details + opening hours) lives only on the home page.
+ *
+ * The whole shell is wrapped in <InventoryProvider> so the header search and
+ * the catalogue can share a single inventory load.
  */
 function Layout() {
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -37,12 +41,14 @@ function Layout() {
   }, []);
 
   return (
-    <div className={styles.shell} ref={shellRef}>
-      <TopPanel />
-      <main className={styles.main}>
-        <Outlet />
-      </main>
-    </div>
+    <InventoryProvider>
+      <div className={styles.shell} ref={shellRef}>
+        <TopPanel />
+        <main className={styles.main}>
+          <Outlet />
+        </main>
+      </div>
+    </InventoryProvider>
   );
 }
 

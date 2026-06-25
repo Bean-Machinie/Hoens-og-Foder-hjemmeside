@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { NAV_ITEMS } from '@/config/navigation';
 import { SITE } from '@/config/site';
 import FacebookFollowCallout from '@/components/ui/FacebookFollowCallout';
+import GlobalSearch from './GlobalSearch';
 import styles from './TopPanel.module.css';
 
 interface HighlightState {
@@ -273,14 +274,16 @@ function TopPanel() {
     <header className={styles.header}>
       <div className={styles.topBar}>
         <div className={styles.topBarInner}>
-          <div aria-hidden="true" />
+          <div className={styles.leftArea}>
+            <FacebookFollowCallout />
+          </div>
 
           <Link to="/" className={styles.brand}>
             {SITE.name}
           </Link>
 
-          <div className={styles.metaArea}>
-            <FacebookFollowCallout />
+          <div className={styles.searchArea}>
+            <GlobalSearch />
           </div>
         </div>
       </div>
