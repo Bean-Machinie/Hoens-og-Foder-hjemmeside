@@ -118,7 +118,7 @@ function GlobalSearch() {
   // With a query: fuzzy matches. Without: the first catalogue entries, so the
   // dropdown is useful the moment it opens.
   const results = useMemo(() => {
-    const base = hasQuery ? searchGroups(index, groups, trimmed) : groups;
+    const base = hasQuery ? searchGroups(index, trimmed) : groups;
     return base.slice(0, MAX_RESULTS);
   }, [hasQuery, index, groups, trimmed]);
 

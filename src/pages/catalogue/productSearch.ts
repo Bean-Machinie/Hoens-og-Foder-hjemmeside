@@ -1,112 +1,181 @@
 /**
- * Fuzzy product search for the Sortiment page.
+ * Product search for the catalogue / header search.
  *
- * Built on Fuse.js (https://www.fusejs.io) — a small, dependency-free,
- * well-maintained fuzzy-matching library. We deliberately don't roll our own:
- * Fuse already solves typo tolerance, weighted multi-field ranking and
- * relevance scoring far better than anything hand-written.
+ * This is a hybrid matcher tuned to feel "smart" on a small shop catalogue:
  *
- * The search is intentionally *forgiving*. A shopper can type a slightly
- * misspelled product name ("sussux"), a colour or material mentioned only in
- * the description ("hvid", "gylden"), a variant size ("8 mm"), a category
- * ("foder") or a price — and still land on the right card. Each whitespace
- * separated word is matched independently and combined with AND semantics, so
- * "hvid høne" narrows to entries matching *both* terms across *any* field.
+ *   1. Direct matching first — normalized substring & word-prefix matching
+ *      across the title, category and every variant's text. This is what makes
+ *      short and partial queries work: typing "h" returns everything that
+ *      contains an "h", "høn" returns the hens, "20" finds 20 mm, etc.
+ *   2. Fuzzy fallback — only when a word has no direct hit do we fall back to
+ *      Fuse.js, which absorbs typos ("sussux" -> "Sussex").
+ *
+ * Results are ranked so the most relevant matches (title prefix > title word >
+ * title substring > category > anywhere > fuzzy) float to the top, and every
+ * search word must match somewhere (AND semantics) for a product to show.
  */
 
 import Fuse, { type IFuseOptions } from 'fuse.js';
 import type { ProductGroup } from './inventory';
 
-/**
- * Fuse options tuned for a small catalogue of physical products.
- *
- * - `threshold: 0.4` keeps matching forgiving enough to absorb a typo or two
- *   without drowning the user in irrelevant hits.
- * - `ignoreLocation: true` means a match counts wherever it appears in the
- *   text, not just near the start — essential when searching long descriptions.
- * - `keys` are weighted so a hit in the product title outranks a hit buried in
- *   a description, which matches what shoppers expect.
- */
+const COMBINING_MARKS = new RegExp('[\\u0300-\\u036f]', 'g');
+
+/** Lowercase, fold Danish letters and strip diacritics for forgiving matching. */
+function normalize(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/æ/g, 'ae')
+    .replace(/ø/g, 'oe')
+    .replace(/å/g, 'aa')
+    .normalize('NFD')
+    .replace(COMBINING_MARKS, '');
+}
+
+interface IndexedEntry {
+  group: ProductGroup;
+  /** Original catalogue order, used as a stable tie-breaker. */
+  order: number;
+  /** Normalized product title. */
+  title: string;
+  /** Title split into normalized words, for fast prefix checks. */
+  titleWords: string[];
+  /** Normalized website category. */
+  category: string;
+  /** Everything searchable about the product, normalized and concatenated. */
+  haystack: string;
+}
+
+/** Fuse is only used for typo tolerance, so keep it forgiving. */
 const FUSE_OPTIONS: IFuseOptions<ProductGroup> = {
   includeScore: true,
-  threshold: 0.4,
+  threshold: 0.42,
   ignoreLocation: true,
   minMatchCharLength: 2,
   keys: [
-    { name: 'title', weight: 0.45 },
+    { name: 'title', weight: 0.5 },
     { name: 'category', weight: 0.2 },
     { name: 'variants.variant', weight: 0.15 },
-    { name: 'variants.description', weight: 0.12 },
+    { name: 'variants.description', weight: 0.1 },
     { name: 'variants.status', weight: 0.05 },
-    { name: 'variants.price', weight: 0.03 },
   ],
 };
 
-/** Build a reusable Fuse index over the catalogue entries. */
-export function createProductIndex(groups: ProductGroup[]): Fuse<ProductGroup> {
-  return new Fuse(groups, FUSE_OPTIONS);
+export interface ProductSearchIndex {
+  fuse: Fuse<ProductGroup>;
+  entries: IndexedEntry[];
 }
 
-/** Split a raw query into meaningful, lowercased search tokens. */
-function tokenize(query: string): string[] {
-  return query
-    .trim()
-    .toLocaleLowerCase('da-DK')
-    .split(/\s+/)
-    .filter((token) => token.length > 0);
+/** Build a reusable search index over the catalogue entries. */
+export function createProductIndex(groups: ProductGroup[]): ProductSearchIndex {
+  const entries: IndexedEntry[] = groups.map((group, order) => {
+    const variantText = group.variants
+      .map(
+        (variant) =>
+          `${variant.variant} ${variant.description} ${variant.status} ${variant.price}`,
+      )
+      .join(' ');
+
+    const title = normalize(group.title);
+    const category = normalize(group.category);
+    const haystack = normalize(
+      `${group.title} ${group.category} ${variantText}`,
+    );
+
+    return {
+      group,
+      order,
+      title,
+      titleWords: title.split(/\s+/).filter(Boolean),
+      category,
+      haystack,
+    };
+  });
+
+  return { fuse: new Fuse(groups, FUSE_OPTIONS), entries };
 }
 
 /**
- * Run a forgiving, multi-word fuzzy search and return the matching catalogue
- * entries ordered by relevance (best match first).
- *
- * Every token must match (AND), but each token is matched fuzzily and across
- * all fields independently — so word order and field don't matter. When the
- * query is empty the original list is returned untouched, preserving the
- * catalogue's natural ordering.
+ * Score a single search word against one entry by direct matching.
+ * Returns 0 when there is no direct (non-fuzzy) hit anywhere.
+ */
+function directScore(token: string, entry: IndexedEntry): number {
+  if (entry.title === token) {
+    return 120;
+  }
+  if (entry.title.startsWith(token)) {
+    return 100;
+  }
+  if (entry.titleWords.some((word) => word.startsWith(token))) {
+    return 80;
+  }
+  if (entry.title.includes(token)) {
+    return 60;
+  }
+  if (entry.category.startsWith(token)) {
+    return 50;
+  }
+  if (entry.category.includes(token)) {
+    return 40;
+  }
+  if (entry.haystack.includes(token)) {
+    return 20;
+  }
+  return 0;
+}
+
+/**
+ * Run the hybrid search and return matching catalogue entries, best first.
+ * An empty query returns everything in catalogue order.
  */
 export function searchGroups(
-  index: Fuse<ProductGroup>,
-  groups: ProductGroup[],
+  index: ProductSearchIndex,
   query: string,
 ): ProductGroup[] {
-  const tokens = tokenize(query);
+  const tokens = normalize(query).split(/\s+/).filter(Boolean);
   if (tokens.length === 0) {
-    return groups;
+    return index.entries.map((entry) => entry.group);
   }
 
-  // Accumulate, per catalogue entry, the summed Fuse score across every token.
-  // A lower score is a better match in Fuse, so we keep adding and sort
-  // ascending at the end. An entry survives only if it matched *all* tokens.
-  let surviving: Map<ProductGroup, number> | null = null;
-
-  for (const token of tokens) {
-    const hits = index.search(token);
-    const scoreByGroup = new Map<ProductGroup, number>();
-    for (const hit of hits) {
-      scoreByGroup.set(hit.item, hit.score ?? 1);
-    }
-
-    if (surviving === null) {
-      surviving = scoreByGroup;
-      continue;
-    }
-
-    const intersection = new Map<ProductGroup, number>();
-    for (const [group, accumulated] of surviving) {
-      const tokenScore = scoreByGroup.get(group);
-      if (tokenScore !== undefined) {
-        intersection.set(group, accumulated + tokenScore);
+  // For each word, precompute Fuse's fuzzy matches once. Only consulted when a
+  // word has no direct hit on a given product, so typos still resolve.
+  const fuzzyByToken = tokens.map((token) => {
+    const map = new Map<ProductGroup, number>();
+    if (token.length >= 2) {
+      for (const hit of index.fuse.search(token)) {
+        map.set(hit.item, hit.score ?? 1);
       }
     }
-    surviving = intersection;
+    return map;
+  });
+
+  const scored: { group: ProductGroup; score: number; order: number }[] = [];
+
+  for (const entry of index.entries) {
+    let total = 0;
+    let matchedEveryToken = true;
+
+    for (let i = 0; i < tokens.length; i += 1) {
+      let tokenScore = directScore(tokens[i], entry);
+
+      if (tokenScore === 0) {
+        const fuzzy = fuzzyByToken[i].get(entry.group);
+        if (fuzzy === undefined) {
+          matchedEveryToken = false;
+          break;
+        }
+        // Map a Fuse score (0 = perfect, ~0.42 = worst kept) to a small
+        // positive value that always ranks below any direct hit.
+        tokenScore = Math.max(1, 16 - fuzzy * 20);
+      }
+
+      total += tokenScore;
+    }
+
+    if (matchedEveryToken) {
+      scored.push({ group: entry.group, score: total, order: entry.order });
+    }
   }
 
-  if (!surviving) {
-    return [];
-  }
-
-  return [...surviving.entries()]
-    .sort((a, b) => a[1] - b[1])
-    .map(([group]) => group);
+  scored.sort((a, b) => b.score - a.score || a.order - b.order);
+  return scored.map((item) => item.group);
 }
