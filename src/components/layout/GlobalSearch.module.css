@@ -1,8 +1,8 @@
 .root {
   position: relative;
   width: 100%;
-  max-width: 320px;
-  justify-self: end;
+  max-width: 300px;
+  justify-self: start;
 }
 
 /* --- Input field -------------------------------------------------------- */
@@ -61,12 +61,13 @@
     0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
 
-/* Square off the bottom corners while the panel is open so the two read as a
-   single connected surface. */
+/* While the panel is open, square off the bottom corners and drop the focus
+   ring so the field and panel read as one connected, flush surface. */
 .fieldOpen .input {
+  border-color: var(--color-primary);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-color: var(--color-primary);
+  box-shadow: var(--shadow);
 }
 
 .clear {
@@ -104,13 +105,14 @@
 }
 
 /* --- Results panel ------------------------------------------------------ */
+/* Same width as the field, sitting flush beneath it: sharp top corners,
+   rounded bottom, left-aligned so the two line up exactly. */
 .panel {
   position: absolute;
   top: calc(100% - 1px);
-  right: 0;
+  left: 0;
   z-index: 60;
-  width: max(100%, 340px);
-  max-width: min(420px, calc(100vw - 2 * var(--space-3)));
+  width: 100%;
   padding: 0.35rem;
   border: 1px solid var(--color-primary);
   border-top-color: var(--color-border);
@@ -135,7 +137,7 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  max-height: min(60vh, 420px);
+  max-height: min(60vh, 430px);
   overflow-y: auto;
 }
 
@@ -146,7 +148,7 @@
   width: 100%;
   padding: 0.4rem 0.5rem;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   background: none;
   color: var(--color-text);
   text-align: left;
@@ -168,6 +170,8 @@
   object-fit: cover;
 }
 
+/* min-width: 0 lets this flex child actually shrink, so the title can
+   ellipsis-truncate instead of forcing the row wider than the field. */
 .text {
   display: flex;
   flex-direction: column;
@@ -177,6 +181,7 @@
 }
 
 .title {
+  max-width: 100%;
   overflow: hidden;
   font-size: 0.9rem;
   font-weight: 650;
@@ -217,13 +222,42 @@
   text-align: center;
 }
 
-.more {
-  margin: 0.2rem 0.2rem 0;
-  padding: 0.5rem 0.55rem;
+/* --- "Se hele sortiment" footer ----------------------------------------- */
+.allLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.6rem 0.5rem;
+  border: 0;
   border-top: 1px solid var(--color-border);
+  border-radius: 0 0 10px 10px;
+  background: none;
   color: var(--color-text-muted);
-  font-size: 0.76rem;
-  line-height: 1.35;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease;
+}
+
+.allLink:hover {
+  color: var(--color-primary-dark);
+  background-color: color-mix(in srgb, var(--color-primary) 7%, transparent);
+}
+
+.arrowIcon {
+  width: 15px;
+  height: 15px;
+  transition: transform 160ms ease;
+}
+
+.allLink:hover .arrowIcon {
+  transform: translateX(2px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -233,7 +267,8 @@
 
   .input,
   .clear,
-  .option {
+  .option,
+  .arrowIcon {
     transition: none;
   }
 }

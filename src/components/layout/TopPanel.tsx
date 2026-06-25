@@ -274,16 +274,16 @@ function TopPanel() {
     <header className={styles.header}>
       <div className={styles.topBar}>
         <div className={styles.topBarInner}>
-          <div className={styles.leftArea}>
-            <FacebookFollowCallout />
+          <div className={styles.searchArea}>
+            <GlobalSearch />
           </div>
 
           <Link to="/" className={styles.brand}>
             {SITE.name}
           </Link>
 
-          <div className={styles.searchArea}>
-            <GlobalSearch />
+          <div className={styles.metaArea}>
+            <FacebookFollowCallout />
           </div>
         </div>
       </div>
