@@ -103,6 +103,8 @@ function GlobalSearch() {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [compactPlaceholder, setCompactPlaceholder] = useState(false);
+  const maxResults = compactPlaceholder ? 5 : MAX_RESULTS;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -119,10 +121,20 @@ function GlobalSearch() {
   // dropdown is useful the moment it opens.
   const results = useMemo(() => {
     const base = hasQuery ? searchGroups(index, trimmed) : groups;
-    return base.slice(0, MAX_RESULTS);
-  }, [hasQuery, index, groups, trimmed]);
+    return base.slice(0, maxResults);
+  }, [hasQuery, index, groups, maxResults, trimmed]);
 
   const showPanel = open;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 720px)');
+    const apply = () => setCompactPlaceholder(mediaQuery.matches);
+
+    apply();
+    mediaQuery.addEventListener('change', apply);
+
+    return () => mediaQuery.removeEventListener('change', apply);
+  }, []);
 
   // Reset the keyboard cursor whenever the query changes.
   useEffect(() => {
@@ -235,7 +247,7 @@ function GlobalSearch() {
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Søg efter produkter…"
+          placeholder={compactPlaceholder ? 'Søg...' : 'Søg efter produkter…'}
           ref={inputRef}
           role="combobox"
           type="text"

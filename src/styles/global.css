@@ -11,6 +11,8 @@ html {
      scrolling is opted into explicitly where wanted (e.g. the in-page anchor
      links via scrollIntoView({ behavior: 'smooth' })). */
   scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -62,6 +64,14 @@ ul {
 button {
   font-family: inherit;
   cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Shared layout helper: centered content container */

@@ -276,3 +276,118 @@
     transition: none;
   }
 }
+
+@media (max-width: 720px) {
+  .root {
+    width: clamp(118px, 37vw, 150px);
+    max-width: none;
+    justify-self: end;
+  }
+
+  .iconWrap {
+    left: 0.55rem;
+  }
+
+  .icon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .input {
+    min-height: 30px;
+    padding-inline: 1.75rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.76rem;
+  }
+
+  .input::placeholder {
+    font-size: 0.76rem;
+  }
+
+  .panel {
+    width: min(72vw, 280px);
+    right: 0;
+    left: auto;
+    padding: 0.25rem;
+  }
+
+  .option {
+    gap: 0.45rem;
+    padding: 0.3rem 0.38rem;
+    border-radius: 8px;
+  }
+
+  .thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+  }
+
+  .text {
+    gap: 0.1rem;
+  }
+
+  .title {
+    font-size: 0.76rem;
+    line-height: 1.18;
+  }
+
+  .category {
+    font-size: 0.64rem;
+  }
+
+  .price {
+    font-size: 0.68rem;
+  }
+
+  .hint {
+    padding: 0.7rem 0.55rem;
+    font-size: 0.76rem;
+  }
+
+  .allLink {
+    padding: 0.48rem 0.4rem;
+    font-size: 0.74rem;
+  }
+
+  .arrowIcon {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .root {
+    width: clamp(108px, 36vw, 138px);
+  }
+
+  .input {
+    min-height: 29px;
+    font-size: 0.74rem;
+  }
+
+  .input::placeholder {
+    font-size: 0.74rem;
+  }
+
+  .panel {
+    width: min(74vw, 270px);
+  }
+
+  .thumb {
+    width: 30px;
+    height: 30px;
+  }
+
+  .title {
+    font-size: 0.74rem;
+  }
+
+  .category {
+    font-size: 0.62rem;
+  }
+
+  .price {
+    font-size: 0.66rem;
+  }
+}
