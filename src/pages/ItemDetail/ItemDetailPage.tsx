@@ -37,6 +37,7 @@ function ItemDetailPage() {
   const [group, setGroup] = useState<ProductGroup | null>(null);
   const [selected, setSelected] = useState<Product | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const [imageOpen, setImageOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +82,31 @@ function ItemDetailPage() {
       document.title = SITE.name;
     };
   }, [group]);
+
+  useEffect(() => {
+    setImageOpen(false);
+  }, [selected]);
+
+  useEffect(() => {
+    if (!imageOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setImageOpen(false);
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [imageOpen]);
 
   return (
     <section className={`container ${styles.page}`}>
@@ -132,6 +158,7 @@ function ItemDetailPage() {
       )}
 
       {status === 'ready' && group && selected && (
+        <>
         <article className={styles.layout}>
           <div
             className={`${styles.media} ${
@@ -143,17 +170,27 @@ function ItemDetailPage() {
                 {selected.status}
               </span>
             )}
-            <img
-              className={styles.image}
-              src={selected.imageUrl || placeholderImage}
-              alt={group.title}
-              onError={(event) => {
-                const img = event.currentTarget;
-                if (img.src !== placeholderImage) {
-                  img.src = placeholderImage;
-                }
-              }}
-            />
+            <button
+              aria-label={`Vis større billede af ${group.title}`}
+              className={styles.imageButton}
+              onClick={() => setImageOpen(true)}
+              type="button"
+            >
+              <img
+                className={styles.image}
+                src={selected.imageUrl || placeholderImage}
+                alt={group.title}
+                onError={(event) => {
+                  const img = event.currentTarget;
+                  if (img.src !== placeholderImage) {
+                    img.src = placeholderImage;
+                  }
+                }}
+              />
+              <span className={styles.zoomCue} aria-hidden="true">
+                Forstør
+              </span>
+            </button>
           </div>
 
           <div className={styles.info}>
@@ -161,6 +198,12 @@ function ItemDetailPage() {
               <p className={styles.category}>{group.category}</p>
               <h1 className={styles.title}>{group.title}</h1>
               {selected.price && <p className={styles.price}>{selected.price}</p>}
+              {selected.barcode.trim() && (
+                <p className={styles.barcode}>
+                  <span>Stregkode</span>
+                  {selected.barcode}
+                </p>
+              )}
             </header>
 
             {group.isGrouped && (
@@ -214,6 +257,37 @@ function ItemDetailPage() {
             </div>
           </div>
         </article>
+
+        {imageOpen && (
+          <div
+            aria-label={`Større billede af ${group.title}`}
+            aria-modal="true"
+            className={styles.lightbox}
+            onClick={() => setImageOpen(false)}
+            role="dialog"
+          >
+            <div
+              className={styles.lightboxPanel}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                aria-label="Luk billede"
+                className={styles.lightboxClose}
+                onClick={() => setImageOpen(false)}
+                type="button"
+              >
+                <span aria-hidden="true" />
+              </button>
+              <img
+                alt={group.title}
+                className={styles.lightboxImage}
+                src={selected.imageUrl || placeholderImage}
+              />
+              <p className={styles.lightboxCaption}>{group.title}</p>
+            </div>
+          </div>
+        )}
+        </>
       )}
     </section>
   );
