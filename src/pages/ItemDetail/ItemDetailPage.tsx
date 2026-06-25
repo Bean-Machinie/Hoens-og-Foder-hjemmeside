@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import ReserveAction from '@/components/ReserveAction/ReserveAction';
 import { SITE } from '@/config/site';
@@ -27,6 +27,13 @@ function statusClass(status: Product['status']): string {
 
 function ItemDetailPage() {
   const { slug = '' } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Did the user arrive here from the catalogue grid? If so, going back
+  // should be a real history pop so their filter and scroll are restored.
+  const cameFromCatalogue = Boolean(
+    (location.state as { fromCatalogue?: boolean } | null)?.fromCatalogue,
+  );
   const [group, setGroup] = useState<ProductGroup | null>(null);
   const [selected, setSelected] = useState<Product | null>(null);
   const [status, setStatus] = useState<Status>('loading');
@@ -77,10 +84,21 @@ function ItemDetailPage() {
 
   return (
     <section className={`container ${styles.page}`}>
-      <Link to="/sortiment" className={styles.back}>
-        <span aria-hidden="true" className={styles.backArrow} />
-        Tilbage til sortiment
-      </Link>
+      {cameFromCatalogue ? (
+        <button
+          type="button"
+          className={styles.back}
+          onClick={() => navigate(-1)}
+        >
+          <span aria-hidden="true" className={styles.backArrow} />
+          Tilbage til sortiment
+        </button>
+      ) : (
+        <Link to="/sortiment" className={styles.back}>
+          <span aria-hidden="true" className={styles.backArrow} />
+          Tilbage til sortiment
+        </Link>
+      )}
 
       {status === 'loading' && (
         <div className={styles.layout} aria-hidden="true">

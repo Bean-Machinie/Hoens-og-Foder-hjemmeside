@@ -7,7 +7,9 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* No global smooth scroll: route changes must jump instantly. Smooth
+     scrolling is opted into explicitly where wanted (e.g. the in-page anchor
+     links via scrollIntoView({ behavior: 'smooth' })). */
   scrollbar-gutter: stable;
 }
 

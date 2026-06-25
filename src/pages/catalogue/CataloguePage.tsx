@@ -129,6 +129,7 @@ function CataloguePage() {
                   <Link
                     key={group.key}
                     to={`/sortiment/${groupSlug(group)}`}
+                    state={{ fromCatalogue: true }}
                     className={styles.cardLink}
                     aria-label={group.title}
                   >
