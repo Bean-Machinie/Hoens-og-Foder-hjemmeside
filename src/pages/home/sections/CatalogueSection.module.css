@@ -25,7 +25,7 @@
   font-family: var(--font-body);
   font-size: clamp(1.9rem, 3.2vw, 2.65rem);
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
   line-height: 1.08;
 }
 
@@ -296,48 +296,184 @@
 }
 
 @media (max-width: 900px) {
+  .section {
+    padding-block: clamp(1.6rem, 4vw, 2.4rem);
+  }
+
+  .top {
+    margin-bottom: clamp(0.75rem, 2.4vw, 1.25rem);
+  }
+
+  .header {
+    max-width: 620px;
+  }
+
+  .header h2 {
+    font-size: clamp(1.55rem, 4.3vw, 2.15rem);
+  }
+
+  .intro {
+    font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+  }
+
+  .carouselShell {
+    padding-inline: clamp(0.5rem, 2.5vw, 1.25rem);
+  }
+
+  .carousel {
+    margin-block: -22px -38px;
+    padding-block: 22px 38px;
+  }
+
+  .track {
+    margin-left: calc(var(--space-3) * -1);
+  }
+
   .slide {
     flex-basis: 33.333%;
+    padding-left: var(--space-3);
+  }
+
+  .card {
+    aspect-ratio: 3 / 4.15;
+    border-radius: 18px;
+  }
+
+  .cardLink {
+    border-radius: 18px;
+  }
+
+  .cardBody {
+    flex-basis: 27%;
+    padding: clamp(0.75rem, 2.2vw, 1rem);
+  }
+
+  .cardTitle {
+    font-size: clamp(1rem, 2.8vw, 1.25rem);
+  }
+
+  .control {
+    display: none;
+  }
+
+  .footer {
+    gap: clamp(0.75rem, 2.4vw, 1rem);
+    margin-top: 0.75rem;
+  }
+
+  .footer > a {
+    min-width: clamp(240px, 42vw, 300px);
+    min-height: 52px;
+    padding-inline: clamp(1.75rem, 4vw, 2.75rem);
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
   }
 }
 
 @media (max-width: 640px) {
-  .slide {
-    flex-basis: 50%;
+  .section {
+    padding-block: clamp(1.35rem, 5vw, 2rem);
   }
 
-  .card {
-    aspect-ratio: 4 / 5.3;
+  .header {
+    max-width: 22rem;
+  }
+
+  .header h2 {
+    font-size: clamp(1.35rem, 6vw, 1.75rem);
+    line-height: 1.12;
+  }
+
+  .intro {
+    font-size: clamp(0.9rem, 3.7vw, 1rem);
+    line-height: 1.35;
   }
 
   .carouselShell {
-    padding-inline: 2.5rem;
-  }
-
-  .control {
-    width: 34px;
-    height: 34px;
+    padding-inline: clamp(0.25rem, 2vw, 0.75rem);
   }
 
   .carousel {
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      transparent 0,
-      #000 8%,
-      #000 92%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      90deg,
-      transparent 0,
-      #000 8%,
-      #000 92%,
-      transparent 100%
-    );
+    margin-block: -16px -28px;
+    padding-block: 16px 28px;
+  }
+
+  .track {
+    margin-left: calc(var(--space-2) * -1);
+  }
+
+  .slide {
+    flex-basis: 36%;
+    padding-left: var(--space-2);
+  }
+
+  .card {
+    aspect-ratio: 3 / 3.95;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+  }
+
+  .cardLink {
+    border-radius: 14px;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+  }
+
+  .cardBody {
+    flex-basis: 25%;
+    padding: clamp(0.55rem, 2.6vw, 0.8rem);
+  }
+
+  .cardTitle {
+    font-size: clamp(0.82rem, 3.8vw, 1rem);
+    line-height: 1.08;
+  }
+
+  .carousel {
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
   .footer > a {
     width: min(100%, 320px);
+    min-width: 0;
+    min-height: 48px;
+    padding-inline: clamp(1.25rem, 6vw, 2rem);
+    font-size: clamp(0.95rem, 4vw, 1.05rem);
+    border-radius: 10px;
+  }
+
+  .dots {
+    gap: 0.4rem;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dot:hover,
+  .dotActive {
+    width: 18px;
+  }
+}
+
+@media (max-width: 460px) {
+  .slide {
+    flex-basis: 36%;
+  }
+
+  .carouselShell {
+    padding-inline: 0.25rem;
+  }
+
+  .card {
+    aspect-ratio: 3 / 3.8;
+  }
+
+  .cardTitle {
+    font-size: clamp(0.78rem, 4.2vw, 0.95rem);
   }
 }
 
