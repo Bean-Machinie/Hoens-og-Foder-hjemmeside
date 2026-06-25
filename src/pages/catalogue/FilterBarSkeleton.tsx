@@ -11,6 +11,7 @@ function FilterBarSkeleton() {
     <div className={styles.bar} aria-hidden="true">
       <div className={`container ${styles.inner}`}>
         <div className={`${styles.skeleton} ${styles.skeletonTrigger}`} />
+        <div className={`${styles.skeleton} ${styles.skeletonSearch}`} />
         <div className={`${styles.skeleton} ${styles.skeletonCount}`} />
       </div>
     </div>
