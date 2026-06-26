@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -7,6 +8,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import useEmblaCarousel from 'embla-carousel-react';
 import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import ReserveAction from '@/components/ReserveAction/ReserveAction';
 import { SITE } from '@/config/site';
@@ -24,9 +26,12 @@ type Status = 'loading' | 'ready' | 'notfound' | 'error';
 const MIN_RELATED_CARDS_PER_SEQUENCE = 8;
 const RELATED_BASE_SPEED = 10;
 const RELATED_FRICTION = 0.985;
+const RELATED_TOUCH_FRICTION = 0.91;
 const RELATED_RESUME_DELAY = 1400;
 const RELATED_DRAG_THRESHOLD = 8;
+const RELATED_TOUCH_DRAG_THRESHOLD = 12;
 const RELATED_MAX_FLING_SPEED = 900;
+const RELATED_MAX_TOUCH_FLING_SPEED = 260;
 
 interface ItemDetailLocationState {
   catalogueHref?: string;
@@ -71,10 +76,14 @@ function RelatedProductCard({
   catalogueHref,
   decorative = false,
   group,
+  onClick,
+  onPointerDown,
 }: {
   catalogueHref: string;
   decorative?: boolean;
   group: ProductGroup;
+  onClick?: (event: ReactMouseEvent<HTMLAnchorElement>) => void;
+  onPointerDown?: (event: ReactPointerEvent<HTMLAnchorElement>) => void;
 }) {
   const lead = defaultVariant(group);
   const cardStatus = group.variants.some(
@@ -88,7 +97,9 @@ function RelatedProductCard({
       aria-label={group.title}
       className={styles.relatedCardLink}
       draggable={false}
+      onClick={onClick}
       onDragStart={(event) => event.preventDefault()}
+      onPointerDown={onPointerDown}
       state={{ catalogueHref, fromCatalogue: true }}
       tabIndex={decorative ? -1 : undefined}
       to={`/sortiment/${groupSlug(group)}`}
@@ -149,6 +160,7 @@ function RelatedProductsLoop({
     lastTimestamp: 0,
     moved: false,
     lastDragAt: 0,
+    pointerType: 'mouse',
   });
   const [dragging, setDragging] = useState(false);
 
@@ -189,9 +201,12 @@ function RelatedProductsLoop({
         const elapsedSinceDrag = timestamp - dragRef.current.lastDragAt;
         const targetVelocity =
           elapsedSinceDrag > RELATED_RESUME_DELAY ? RELATED_BASE_SPEED : 0;
+        const friction =
+          dragRef.current.pointerType === 'touch'
+            ? RELATED_TOUCH_FRICTION
+            : RELATED_FRICTION;
         velocityRef.current =
-          velocityRef.current * RELATED_FRICTION +
-          targetVelocity * (1 - RELATED_FRICTION);
+          velocityRef.current * friction + targetVelocity * (1 - friction);
         offsetRef.current += velocityRef.current * delta;
       }
 
@@ -224,6 +239,7 @@ function RelatedProductsLoop({
       lastTimestamp: performance.now(),
       moved: false,
       lastDragAt: performance.now(),
+      pointerType: event.pointerType,
     };
     velocityRef.current = 0;
     setDragging(true);
@@ -241,11 +257,19 @@ function RelatedProductsLoop({
       event.clientX - dragRef.current.startX,
       event.clientY - dragRef.current.startY,
     );
+    const dragThreshold =
+      event.pointerType === 'touch'
+        ? RELATED_TOUCH_DRAG_THRESHOLD
+        : RELATED_DRAG_THRESHOLD;
+    const maxFlingSpeed =
+      event.pointerType === 'touch'
+        ? RELATED_MAX_TOUCH_FLING_SPEED
+        : RELATED_MAX_FLING_SPEED;
 
     dragRef.current.lastX = event.clientX;
     dragRef.current.lastTimestamp = now;
     const hasDragged =
-      dragRef.current.moved || distanceFromStart > RELATED_DRAG_THRESHOLD;
+      dragRef.current.moved || distanceFromStart > dragThreshold;
     dragRef.current.moved = hasDragged;
     dragRef.current.lastDragAt = now;
 
@@ -259,8 +283,8 @@ function RelatedProductsLoop({
 
     offsetRef.current -= deltaX;
     velocityRef.current = Math.max(
-      -RELATED_MAX_FLING_SPEED,
-      Math.min(RELATED_MAX_FLING_SPEED, (-deltaX / elapsed) * 1000),
+      -maxFlingSpeed,
+      Math.min(maxFlingSpeed, (-deltaX / elapsed) * 650),
     );
 
     const width = firstSequenceRef.current?.getBoundingClientRect().width ?? 0;
@@ -335,6 +359,87 @@ function RelatedProductsLoop({
               ))}
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+void RelatedProductsLoop;
+
+function RelatedProductsCarousel({
+  catalogueHref,
+  sequence,
+}: {
+  catalogueHref: string;
+  sequence: ProductGroup[];
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'start',
+    containScroll: false,
+    dragFree: true,
+    loop: true,
+    skipSnaps: true,
+  });
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
+
+  const handleCardPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      dragStart.current = { x: event.clientX, y: event.clientY };
+    },
+    [],
+  );
+
+  const handleCardClick = useCallback(
+    (event: ReactMouseEvent<HTMLAnchorElement>) => {
+      const start = dragStart.current;
+      if (!start) {
+        return;
+      }
+
+      const movedFar =
+        Math.hypot(event.clientX - start.x, event.clientY - start.y) >
+        RELATED_DRAG_THRESHOLD;
+      dragStart.current = null;
+
+      if (movedFar) {
+        event.preventDefault();
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    emblaApi?.reInit();
+  }, [emblaApi, sequence.length]);
+
+  if (sequence.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className={styles.related} aria-labelledby="related-title">
+      <div className={styles.relatedHeading}>
+        <h2 id="related-title">Lignende produkter</h2>
+      </div>
+      <div className={styles.relatedShell}>
+        <div
+          aria-label="Lignende produkter"
+          className={styles.relatedLoop}
+          ref={emblaRef}
+          role="region"
+        >
+          <div className={styles.relatedTrack}>
+            {sequence.map((item, index) => (
+              <RelatedProductCard
+                catalogueHref={catalogueHref}
+                group={item}
+                key={`${item.key}-${index}`}
+                onClick={handleCardClick}
+                onPointerDown={handleCardPointerDown}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -600,7 +705,7 @@ function ItemDetailPage() {
         </article>
 
         {similarProducts.length > 0 && (
-          <RelatedProductsLoop
+          <RelatedProductsCarousel
             catalogueHref={catalogueHref}
             sequence={relatedSequence}
           />

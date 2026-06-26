@@ -80,26 +80,19 @@
 
 @media (max-width: 720px) {
   .root {
-    gap: 7px;
+    gap: 0;
   }
 
   .link {
-    width: 31px;
-    height: 31px;
+    width: 30px;
+    height: 30px;
   }
 
   .icon {
-    width: 26px;
-    height: 26px;
+    width: 25px;
+    height: 25px;
   }
 
-  .callout {
-    padding: 7px 10px;
-    font-size: 0.68rem;
-  }
-}
-
-@media (max-width: 420px) {
   .callout {
     display: none;
   }

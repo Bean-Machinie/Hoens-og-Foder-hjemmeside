@@ -307,6 +307,10 @@
   text-align: center;
 }
 
+.relatedShell {
+  position: relative;
+}
+
 .relatedLoop {
   position: relative;
   overflow: hidden;
@@ -315,10 +319,6 @@
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
-}
-
-.relatedLoopDragging {
-  cursor: grabbing;
 }
 
 .relatedLoop::before,
@@ -344,15 +344,9 @@
 
 .relatedTrack {
   display: flex;
-  width: max-content;
-  will-change: transform;
-}
-
-.relatedSequence {
-  display: flex;
-  align-items: stretch;
   gap: var(--space-3);
-  padding-right: var(--space-3);
+  width: auto;
+  will-change: transform;
 }
 
 .relatedCardLink {
@@ -861,9 +855,8 @@
     width: clamp(142px, 42vw, 176px);
   }
 
-  .relatedSequence {
+  .relatedTrack {
     gap: 0.75rem;
-    padding-right: 0.75rem;
   }
 
   .relatedBody {
@@ -947,10 +940,6 @@
 
   .relatedTrack {
     animation: none;
-  }
-
-  .relatedTrack .relatedSequence:nth-child(2) {
-    display: none;
   }
 
   .relatedCard,
