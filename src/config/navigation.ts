@@ -49,19 +49,6 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Hund & Kat', href: '/sortiment?kategori=hund-kat', icon: smileIcon },
     ],
   },
-  {
-    type: 'dropdown',
-    label: 'Information',
-    items: [
-      { label: 'Nye hønseejere', href: '/information/nye-honseejere' },
-      { label: 'Pasning og trivsel', href: '/information/pasning-og-trivsel' },
-      { label: 'Fodervejledning', href: '/information/fodervejledning' },
-      {
-        label: 'Ofte stillede spørgsmål',
-        href: '/information/ofte-stillede-sporgsmal',
-      },
-    ],
-  },
   { type: 'link', label: 'Om os', href: '/om-os' },
   { type: 'link', label: 'Kontakt', href: '/#kontakt' },
 ];
