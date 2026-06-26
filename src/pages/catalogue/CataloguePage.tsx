@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import {
   CATEGORY_IDS,
@@ -39,7 +39,9 @@ function countByCategory(groups: ProductGroup[]): Record<CategoryId, number> {
 function CataloguePage() {
   // Inventory is loaded once, app-wide, and shared via context.
   const { groups, status } = useInventory();
+  const location = useLocation();
   const filter = useCategoryFilter();
+  const catalogueHref = `${location.pathname}${location.search}`;
 
   // Counts only change when the catalogue entries change, so memoise them.
   const counts = useMemo(() => countByCategory(groups), [groups]);
@@ -129,7 +131,7 @@ function CataloguePage() {
                   <Link
                     key={group.key}
                     to={`/sortiment/${groupSlug(group)}`}
-                    state={{ fromCatalogue: true }}
+                    state={{ catalogueHref, fromCatalogue: true }}
                     className={styles.cardLink}
                     aria-label={group.title}
                   >

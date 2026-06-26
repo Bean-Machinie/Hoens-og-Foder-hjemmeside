@@ -276,6 +276,213 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* --- Similar products loop --------------------------------------------- */
+.related {
+  margin-top: clamp(5rem, 11vw, 8.5rem);
+}
+
+.relatedHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.relatedHeading::before,
+.relatedHeading::after {
+  content: '';
+  height: 1px;
+  flex: 1 1 auto;
+  background: var(--color-border);
+}
+
+.relatedHeading h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.relatedLoop {
+  position: relative;
+  overflow: hidden;
+  padding-block: 0.45rem 1rem;
+  isolation: isolate;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.relatedLoopDragging {
+  cursor: grabbing;
+}
+
+.relatedLoop::before,
+.relatedLoop::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  width: clamp(24px, 8vw, 90px);
+  pointer-events: none;
+}
+
+.relatedLoop::before {
+  left: 0;
+  background: linear-gradient(to right, var(--color-bg), transparent);
+}
+
+.relatedLoop::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-bg), transparent);
+}
+
+.relatedTrack {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.relatedSequence {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  padding-right: var(--space-3);
+}
+
+.relatedCardLink {
+  display: block;
+  width: clamp(168px, 18vw, 220px);
+  flex: 0 0 auto;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.relatedCardLink:hover {
+  text-decoration: none;
+}
+
+.relatedCardLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.relatedCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  transition:
+    border-color 220ms ease,
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.relatedCardLink:hover .relatedCard {
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+  box-shadow:
+    0 18px 36px rgba(43, 38, 32, 0.14),
+    0 4px 10px rgba(43, 38, 32, 0.08);
+  transform: translateY(-5px);
+}
+
+.relatedCardSoldOut .relatedImage {
+  opacity: 0.58;
+  filter: grayscale(35%);
+}
+
+.relatedStatus {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  right: 0.5rem;
+  max-width: calc(100% - 1rem);
+  padding: 0.25rem 0.48rem;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 750;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.relatedNew {
+  background: #31724b;
+}
+
+.relatedOrder {
+  background: #8a5a16;
+}
+
+.relatedSoldOut {
+  background: #7b3535;
+}
+
+.relatedVariants {
+  background: var(--color-primary);
+}
+
+.relatedImage {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #f3f3f3;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.relatedBody {
+  height: 7.35rem;
+  padding: 0.8rem;
+  overflow: hidden;
+}
+
+.relatedTitle {
+  display: -webkit-box;
+  min-height: 2.55em;
+  margin: 0 0 0.25rem;
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 0.94rem;
+  font-weight: 800;
+  line-height: 1.28;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.relatedCategory {
+  margin: 0 0 0.22rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.relatedPrice {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* --- Image lightbox ----------------------------------------------------- */
 .lightbox {
   position: fixed;
@@ -505,6 +712,23 @@
   .reserve {
     padding-top: var(--space-3);
   }
+
+  .related {
+    margin-top: clamp(4rem, 9vw, 6rem);
+  }
+
+  .relatedCardLink {
+    width: clamp(156px, 24vw, 190px);
+  }
+
+  .relatedBody {
+    height: 6.95rem;
+    padding: 0.7rem;
+  }
+
+  .relatedTitle {
+    font-size: 0.86rem;
+  }
 }
 
 @media (max-width: 760px) {
@@ -614,6 +838,54 @@
     margin-top: 0;
     padding-top: 0.95rem;
   }
+
+  .related {
+    margin-top: 3.75rem;
+  }
+
+  .relatedHeading {
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .relatedHeading h2 {
+    font-size: clamp(1.08rem, 5vw, 1.35rem);
+  }
+
+  .relatedLoop {
+    margin-inline: calc(var(--container-padding) * -1);
+    padding-inline: var(--container-padding);
+  }
+
+  .relatedCardLink {
+    width: clamp(142px, 42vw, 176px);
+  }
+
+  .relatedSequence {
+    gap: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .relatedBody {
+    height: 6.45rem;
+    padding: 0.65rem;
+  }
+
+  .relatedStatus {
+    font-size: 0.58rem;
+  }
+
+  .relatedTitle {
+    font-size: 0.78rem;
+  }
+
+  .relatedCategory {
+    font-size: 0.66rem;
+  }
+
+  .relatedPrice {
+    font-size: 0.76rem;
+  }
 }
 
 @media (max-width: 420px) {
@@ -640,6 +912,14 @@
   .variantChip {
     font-size: 0.78rem;
   }
+
+  .relatedCardLink {
+    width: clamp(134px, 45vw, 160px);
+  }
+
+  .relatedBody {
+    height: 6.15rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -657,5 +937,25 @@
 
   .imageButton:hover .image {
     transform: none;
+  }
+
+  .relatedLoop {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .relatedTrack {
+    animation: none;
+  }
+
+  .relatedTrack .relatedSequence:nth-child(2) {
+    display: none;
+  }
+
+  .relatedCard,
+  .relatedCardLink:hover .relatedCard {
+    transform: none;
+    transition: none;
   }
 }
