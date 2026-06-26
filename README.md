@@ -22,6 +22,13 @@ npm run preview  # vis produktionsbuild lokalt
 npm run typecheck
 ```
 
+## Deploy
+
+GitHub Pages deployer automatisk, når der pushes til `main`.
+
+Første gang skal repository-indstillingen sættes til GitHub Actions:
+`Settings` -> `Pages` -> `Build and deployment` -> `Source` -> `GitHub Actions`.
+
 ## Projektstruktur
 
 ```
