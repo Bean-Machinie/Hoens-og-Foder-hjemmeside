@@ -21,6 +21,7 @@ function TopPanel() {
   const menuItemRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const revealHighlightFrame = useRef<number | null>(null);
   const hoveredNavLabel = useRef<string | null>(null);
+  const dismissClickTimeout = useRef<number | null>(null);
   const [openNavMenu, setOpenNavMenu] = useState<string | null>(null);
   const [hoverHighlight, setHoverHighlight] = useState<HighlightState>({
     left: 0,
@@ -224,17 +225,42 @@ function TopPanel() {
   };
 
   useEffect(() => {
+    if (!openNavMenu) {
+      return undefined;
+    }
+
     const handlePointerDown = (event: PointerEvent) => {
       if (navRef.current?.contains(event.target as Node)) {
         return;
       }
 
+      event.preventDefault();
+      event.stopPropagation();
+
+      const blockDismissClick = (clickEvent: globalThis.MouseEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        clickEvent.stopImmediatePropagation();
+        document.removeEventListener('click', blockDismissClick, true);
+        if (dismissClickTimeout.current !== null) {
+          window.clearTimeout(dismissClickTimeout.current);
+          dismissClickTimeout.current = null;
+        }
+      };
+
+      document.addEventListener('click', blockDismissClick, true);
+      dismissClickTimeout.current = window.setTimeout(() => {
+        document.removeEventListener('click', blockDismissClick, true);
+        dismissClickTimeout.current = null;
+      }, 500);
       closeNavMenu();
     };
 
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, []);
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [openNavMenu]);
 
   useEffect(() => {
     closeNavMenu();
@@ -265,6 +291,9 @@ function TopPanel() {
     () => () => {
       if (revealHighlightFrame.current !== null) {
         window.cancelAnimationFrame(revealHighlightFrame.current);
+      }
+      if (dismissClickTimeout.current !== null) {
+        window.clearTimeout(dismissClickTimeout.current);
       }
     },
     [],

@@ -108,6 +108,7 @@ function GlobalSearch() {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const dismissClickTimeout = useRef<number | null>(null);
   const listboxId = useId();
   const optionId = (index: number) => `${listboxId}-option-${index}`;
 
@@ -147,13 +148,45 @@ function GlobalSearch() {
       return;
     }
     const handlePointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setOpen(false);
+      if (containerRef.current?.contains(event.target as Node)) {
+        return;
       }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const blockDismissClick = (clickEvent: MouseEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        clickEvent.stopImmediatePropagation();
+        document.removeEventListener('click', blockDismissClick, true);
+        if (dismissClickTimeout.current !== null) {
+          window.clearTimeout(dismissClickTimeout.current);
+          dismissClickTimeout.current = null;
+        }
+      };
+
+      document.addEventListener('click', blockDismissClick, true);
+      dismissClickTimeout.current = window.setTimeout(() => {
+        document.removeEventListener('click', blockDismissClick, true);
+        dismissClickTimeout.current = null;
+      }, 500);
+      setOpen(false);
     };
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => document.removeEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
   }, [open]);
+
+  useEffect(
+    () => () => {
+      if (dismissClickTimeout.current !== null) {
+        window.clearTimeout(dismissClickTimeout.current);
+      }
+    },
+    [],
+  );
 
   const close = () => {
     setOpen(false);

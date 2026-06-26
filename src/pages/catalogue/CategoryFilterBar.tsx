@@ -89,6 +89,7 @@ function CategoryFilterBar({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const dismissClickTimeout = useRef<number | null>(null);
   const menuId = useId();
 
   const activeCount = filter.selected.length;
@@ -101,14 +102,46 @@ function CategoryFilterBar({
     }
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setOpen(false);
+      if (containerRef.current?.contains(event.target as Node)) {
+        return;
       }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const blockDismissClick = (clickEvent: MouseEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        clickEvent.stopImmediatePropagation();
+        document.removeEventListener('click', blockDismissClick, true);
+        if (dismissClickTimeout.current !== null) {
+          window.clearTimeout(dismissClickTimeout.current);
+          dismissClickTimeout.current = null;
+        }
+      };
+
+      document.addEventListener('click', blockDismissClick, true);
+      dismissClickTimeout.current = window.setTimeout(() => {
+        document.removeEventListener('click', blockDismissClick, true);
+        dismissClickTimeout.current = null;
+      }, 500);
+      setOpen(false);
     };
 
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => document.removeEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
   }, [open]);
+
+  useEffect(
+    () => () => {
+      if (dismissClickTimeout.current !== null) {
+        window.clearTimeout(dismissClickTimeout.current);
+      }
+    },
+    [],
+  );
 
   const closeAndRefocus = () => {
     setOpen(false);
