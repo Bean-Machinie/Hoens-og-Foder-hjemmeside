@@ -11,7 +11,7 @@ export const SITE = {
   /** Opening hours, one row per group of days. Single source of truth for
    *  both the hero and the footer. */
   openingHours: [
-    { days: 'Mandag – Fredag', hours: '16:00 – 19:00' },
+    { days: 'Man  – Fre', hours: '16:00 – 19:00' },
     { days: 'Lørdag', hours: '9:00 – 14:00' },
     { days: 'Søndag', hours: 'Lukket' },
   ],

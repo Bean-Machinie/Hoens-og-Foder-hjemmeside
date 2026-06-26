@@ -30,9 +30,9 @@
   grid-area: brand;
   justify-self: center;
   display: inline-block;
-  font-family: var(--font-body);
+  font-family: var(--font-heading);
   font-size: clamp(1.45rem, 2vw, 1.9rem);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--color-primary-dark);
   white-space: nowrap;
   backface-visibility: hidden;
@@ -281,7 +281,7 @@
   .brand {
     justify-self: start;
     font-size: clamp(0.95rem, 4.1vw, 1.08rem);
-    font-weight: 800;
+    font-weight: 400;
   }
 
   .searchArea {
