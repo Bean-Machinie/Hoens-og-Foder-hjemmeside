@@ -146,27 +146,8 @@ export type ProductStatus =
   | 'Flere Varianter'
   | '';
 
-const WEBSITE_CATEGORY_BY_SHEET_CATEGORY: Record<string, string> = {
-  'HØNS - FODER': 'Foder',
-  'HØNS - SUNDHED': 'Sundhed',
-  'HØNS - UDSTYR': 'Udstyr',
-  'HØNS - TRIVSEL': 'Sundhed',
-  'HØNS - STALD': 'Stald',
-  'TILBEHØR - FODER': 'Udstyr',
-  'HØNS - DIVERSE': 'Diverse',
-  'TILBEHØR - STALD': 'Stald',
-  'VILDTFUGLE - TILBEHØR': 'Vildtfugle',
-  'VILDTFUGLE - FODER': 'Vildtfugle',
-  HØNS: 'Høns',
-  GNAVER: 'Diverse',
-  HANE: 'Høns',
-  KYLLINGER: 'Høns',
-  DIVERSE: 'Diverse',
-};
-
 export function toWebsiteCategory(sheetCategory: string): string {
-  const normalized = sheetCategory.trim().toLocaleUpperCase('da-DK');
-  return WEBSITE_CATEGORY_BY_SHEET_CATEGORY[normalized] ?? 'Diverse';
+  return sheetCategory.trim();
 }
 
 export function parseCsv(text: string): Record<string, string>[] {

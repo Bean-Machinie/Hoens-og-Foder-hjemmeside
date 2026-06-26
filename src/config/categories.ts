@@ -1,5 +1,6 @@
 import diverseImage from '@/assets/images/categories/diverse.webp';
 import foderImage from '@/assets/images/categories/foder.webp';
+import hundImage from '@/assets/images/categories/hund.webp';
 import hoensImage from '@/assets/images/categories/høns.webp';
 import staldImage from '@/assets/images/categories/stald.webp';
 import sundhedImage from '@/assets/images/categories/sundhed.webp';
@@ -17,23 +18,22 @@ export interface ProductCategory {
  * Shared product categories used across navigation, carousels and catalogue pages.
  * Keep category names and links centralized here to avoid duplicated website copy.
  *
- * These are the website-facing categories that the Google Sheet's "Kategori"
- * column maps onto (see toWebsiteCategory in pages/catalogue/inventory.ts).
+ * These are the exact categories used in the Google Sheet's "Kategori" column.
  */
 export const PRODUCT_CATEGORIES = [
   { id: 'hoens', name: 'Høns', href: '/sortiment?kategori=hoens', image: hoensImage },
   { id: 'foder', name: 'Foder', href: '/sortiment?kategori=foder', image: foderImage },
   {
-    id: 'sundhed',
-    name: 'Sundhed',
-    href: '/sortiment?kategori=sundhed',
-    image: sundhedImage,
-  },
-  {
     id: 'udstyr',
     name: 'Udstyr',
     href: '/sortiment?kategori=udstyr',
     image: udstyrImage,
+  },
+  {
+    id: 'sundhed',
+    name: 'Sundhed',
+    href: '/sortiment?kategori=sundhed',
+    image: sundhedImage,
   },
   {
     id: 'stald',
@@ -52,6 +52,12 @@ export const PRODUCT_CATEGORIES = [
     name: 'Vildtfugle',
     href: '/sortiment?kategori=vildtfugle',
     image: vildtfugleImage,
+  },
+  {
+    id: 'hund-kat',
+    name: 'Hund & Kat',
+    href: '/sortiment?kategori=hund-kat',
+    image: hundImage,
   },
 ] as const satisfies readonly ProductCategory[];
 
@@ -82,9 +88,8 @@ export function isCategoryId(value: string): value is CategoryId {
 }
 
 /**
- * Map a website-facing category display name (e.g. "Høns", produced by
- * toWebsiteCategory) back to its url id (e.g. "hoens"). Returns undefined for
- * names that don't correspond to a known category.
+ * Map an exact category display name from the sheet (e.g. "Høns") back to its
+ * url id (e.g. "hoens"). Returns undefined for unknown category names.
  */
 export function categoryIdForName(name: string): CategoryId | undefined {
   return CATEGORY_ID_BY_NAME.get(name);
