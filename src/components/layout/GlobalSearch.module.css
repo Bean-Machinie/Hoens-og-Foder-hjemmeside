@@ -143,6 +143,8 @@
   gap: 1px;
   max-height: min(60vh, 430px);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .option {
@@ -317,6 +319,10 @@
     border-radius: 8px;
   }
 
+  .list {
+    max-height: min(46vh, 210px);
+  }
+
   .thumb {
     width: 32px;
     height: 32px;
@@ -372,6 +378,10 @@
 
   .panel {
     width: min(74vw, 270px);
+  }
+
+  .list {
+    max-height: min(44vh, 195px);
   }
 
   .thumb {

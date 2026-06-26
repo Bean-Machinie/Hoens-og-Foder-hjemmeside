@@ -3,10 +3,11 @@
  *
  * This is a hybrid matcher tuned to feel "smart" on a small shop catalogue:
  *
- *   1. Direct matching first — normalized substring & word-prefix matching
- *      across the title, category and every variant's text. This is what makes
- *      short and partial queries work: typing "h" returns everything that
- *      contains an "h", "høn" returns the hens, "20" finds 20 mm, etc.
+ *   1. Direct matching first — normalized substring, word-prefix and compound
+ *      word-part matching across the title, category and every variant's text.
+ *      This is what makes short and partial queries work: typing "h" returns
+ *      everything that contains an "h", "høn" returns the hens, "20" finds 20
+ *      mm, and "vandskål" can still find another kind of "skål".
  *   2. Fuzzy fallback — only when a word has no direct hit do we fall back to
  *      Fuse.js, which absorbs typos ("sussux" -> "Sussex").
  *
@@ -19,6 +20,7 @@ import Fuse, { type IFuseOptions } from 'fuse.js';
 import type { ProductGroup } from './inventory';
 
 const COMBINING_MARKS = new RegExp('[\\u0300-\\u036f]', 'g');
+const MIN_WORD_PART_LENGTH = 4;
 
 /** Lowercase, fold Danish letters and strip diacritics for forgiving matching. */
 function normalize(value: string): string {
@@ -39,8 +41,14 @@ interface IndexedEntry {
   title: string;
   /** Title split into normalized words, for fast prefix checks. */
   titleWords: string[];
+  /** Meaningful normalized title word suffixes, for compound-word matching. */
+  titleWordParts: Set<string>;
   /** Normalized website category. */
   category: string;
+  /** Searchable text split into normalized words. */
+  haystackWords: string[];
+  /** Meaningful normalized searchable word suffixes. */
+  haystackWordParts: Set<string>;
   /** Everything searchable about the product, normalized and concatenated. */
   haystack: string;
 }
@@ -65,6 +73,34 @@ export interface ProductSearchIndex {
   entries: IndexedEntry[];
 }
 
+function splitWords(value: string): string[] {
+  return value.split(/[^a-z0-9]+/).filter(Boolean);
+}
+
+function wordPartsFor(word: string): string[] {
+  if (word.length < MIN_WORD_PART_LENGTH + 2) {
+    return [];
+  }
+
+  const parts: string[] = [];
+  for (
+    let start = word.length - MIN_WORD_PART_LENGTH;
+    start >= MIN_WORD_PART_LENGTH - 1;
+    start -= 1
+  ) {
+    parts.push(word.slice(start));
+  }
+  return parts;
+}
+
+function wordPartSet(words: string[]): Set<string> {
+  return new Set(words.flatMap(wordPartsFor));
+}
+
+function tokenVariants(token: string): string[] {
+  return [token, ...wordPartsFor(token)];
+}
+
 /** Build a reusable search index over the catalogue entries. */
 export function createProductIndex(groups: ProductGroup[]): ProductSearchIndex {
   const entries: IndexedEntry[] = groups.map((group, order) => {
@@ -80,13 +116,18 @@ export function createProductIndex(groups: ProductGroup[]): ProductSearchIndex {
     const haystack = normalize(
       `${group.title} ${group.category} ${variantText}`,
     );
+    const titleWords = splitWords(title);
+    const haystackWords = splitWords(haystack);
 
     return {
       group,
       order,
       title,
-      titleWords: title.split(/\s+/).filter(Boolean),
+      titleWords,
+      titleWordParts: wordPartSet(titleWords),
       category,
+      haystackWords,
+      haystackWordParts: wordPartSet(haystackWords),
       haystack,
     };
   });
@@ -120,6 +161,20 @@ function directScore(token: string, entry: IndexedEntry): number {
   if (entry.haystack.includes(token)) {
     return 20;
   }
+
+  const variants = tokenVariants(token).slice(1);
+  for (const part of variants) {
+    if (entry.titleWordParts.has(part)) {
+      return 46;
+    }
+    if (entry.haystackWordParts.has(part)) {
+      return 18;
+    }
+    if (entry.haystackWords.some((word) => word.includes(part))) {
+      return 14;
+    }
+  }
+
   return 0;
 }
 

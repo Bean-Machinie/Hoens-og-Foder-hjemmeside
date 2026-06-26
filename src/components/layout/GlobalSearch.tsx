@@ -17,9 +17,6 @@ import {
 import { createProductIndex, searchGroups } from '@/pages/catalogue/productSearch';
 import styles from './GlobalSearch.module.css';
 
-/** Most results we ever show in the dropdown — keeps it scannable. */
-const MAX_RESULTS = 7;
-
 /** Where the "Se hele sortiment" shortcut goes. */
 const CATALOGUE_PATH = '/sortiment';
 
@@ -90,11 +87,10 @@ function ArrowIcon() {
 }
 
 /**
- * Site-wide product search. Available in the header on every page. Focusing the
- * field opens a compact dropdown that shows a few suggestions straight away
- * (the first catalogue entries); as the user types it switches to fuzzy
- * Fuse.js matches. Each row is a thumbnail + title + price and jumps to that
- * product; a subtle footer link leads to the full catalogue.
+ * Site-wide product search. Available in the header on every page. Typing in
+ * the field opens a compact dropdown with matching products. Each row is a
+ * thumbnail + title + price and jumps to that product; a subtle footer link
+ * leads to the full catalogue.
  */
 function GlobalSearch() {
   const navigate = useNavigate();
@@ -104,7 +100,6 @@ function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [compactPlaceholder, setCompactPlaceholder] = useState(false);
-  const maxResults = compactPlaceholder ? 5 : MAX_RESULTS;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -118,14 +113,11 @@ function GlobalSearch() {
   const trimmed = query.trim();
   const hasQuery = trimmed.length > 0;
 
-  // With a query: fuzzy matches. Without: the first catalogue entries, so the
-  // dropdown is useful the moment it opens.
   const results = useMemo(() => {
-    const base = hasQuery ? searchGroups(index, trimmed) : groups;
-    return base.slice(0, maxResults);
-  }, [hasQuery, index, groups, maxResults, trimmed]);
+    return hasQuery ? searchGroups(index, trimmed) : [];
+  }, [hasQuery, index, trimmed]);
 
-  const showPanel = open;
+  const showPanel = open && hasQuery;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 720px)');
@@ -213,6 +205,9 @@ function GlobalSearch() {
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
+      if (!hasQuery) {
+        return;
+      }
       if (!open) {
         setOpen(true);
         return;
@@ -275,10 +270,15 @@ function GlobalSearch() {
           autoComplete="off"
           className={styles.input}
           onChange={(event) => {
-            setQuery(event.target.value);
-            setOpen(true);
+            const nextQuery = event.target.value;
+            setQuery(nextQuery);
+            setOpen(nextQuery.trim().length > 0);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            if (hasQuery) {
+              setOpen(true);
+            }
+          }}
           onKeyDown={handleKeyDown}
           placeholder={compactPlaceholder ? 'Søg...' : 'Søg efter produkter…'}
           ref={inputRef}
@@ -306,7 +306,7 @@ function GlobalSearch() {
         <div className={styles.panel}>
           {loading ? (
             <p className={styles.hint}>Indlæser produkter…</p>
-          ) : hasQuery && results.length === 0 ? (
+          ) : results.length === 0 ? (
             <p className={styles.hint}>Ingen produkter matcher “{trimmed}”.</p>
           ) : (
             <ul className={styles.list} id={listboxId} role="listbox">
