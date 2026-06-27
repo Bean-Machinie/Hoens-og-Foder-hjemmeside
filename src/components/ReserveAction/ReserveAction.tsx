@@ -331,7 +331,7 @@ function ReserveAction({ product }: ReserveActionProps) {
                         }`}
                         type="text"
                         autoComplete="name"
-                        placeholder="Dit fulde navn"
+                        placeholder="John Doe"
                         value={name}
                         onChange={(event) => setName(event.target.value)}
                       />

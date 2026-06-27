@@ -762,7 +762,7 @@ function ItemDetailPage() {
                   .map((line, index) => <p key={index}>{line}</p>)
               ) : (
                 <p className={styles.descriptionEmpty}>
-                  Der er endnu ikke tilføjet en beskrivelse til denne vare.
+                  
                 </p>
               )}
             </div>
