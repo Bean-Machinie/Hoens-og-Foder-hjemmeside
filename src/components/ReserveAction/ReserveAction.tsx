@@ -302,13 +302,23 @@ function ReserveAction({ product }: ReserveActionProps) {
                   <p className={styles.successTitle}>Tak for din reservation!</p>
                   <p className={styles.successText}>
                     Vi har sendt din reservation af{' '}
-                    <strong>{product.title}</strong> til butikken og vender
-                    tilbage til dig hurtigst muligt.
+                    <strong>{product.title}</strong> til butikken. Vi lægger
+                    varen til side, og du betaler, når du henter den i butikken.
+                    Vi vender tilbage hurtigst muligt.
                   </p>
                   <Dialog.Close className={styles.successClose}>Luk</Dialog.Close>
                 </div>
               ) : (
                 <form className={styles.form} onSubmit={handleSubmit} noValidate>
+                  <p className={styles.notice}>
+                    <span className={styles.noticeIcon}>
+                      <InfoIcon />
+                    </span>
+                    <span>
+                      Du reserverer varen til afhentning i butikken og betaler,
+                      når du henter den.
+                    </span>
+                  </p>
                   <div className={styles.row}>
                     <div className={styles.field}>
                       <label className={styles.label} htmlFor={`${fieldId}-name`}>
@@ -478,6 +488,11 @@ function ReserveAction({ product }: ReserveActionProps) {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      <p className={styles.hint}>
+        Reservation er ikke et onlinekøb – du henter og betaler varen i
+        butikken.
+      </p>
     </div>
   );
 }

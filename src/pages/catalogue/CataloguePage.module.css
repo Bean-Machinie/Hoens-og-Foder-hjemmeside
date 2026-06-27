@@ -1,3 +1,17 @@
+/* Full-width wrapper carrying the same subtle diagonal stripes used by the
+   home page's category and contact sections, so the catalogue feels part of
+   the same family. */
+.page {
+  background-color: var(--color-bg);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 12px,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 12px,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 24px
+  );
+}
+
 .section {
   padding-block: var(--space-6);
 }

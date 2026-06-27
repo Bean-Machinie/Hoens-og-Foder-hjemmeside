@@ -73,7 +73,7 @@ function CataloguePage() {
   }, [groups, filter.isEmpty, filter.selectedSet]);
 
   return (
-    <>
+    <div className={styles.page}>
       {status === 'loading' && <FilterBarSkeleton />}
 
       {status === 'ready' && (
@@ -194,7 +194,7 @@ function CataloguePage() {
             </div>
           ))}
       </section>
-    </>
+    </div>
   );
 }
 
