@@ -108,16 +108,25 @@
 }
 
 .statusBadge {
-  position: absolute;
   z-index: 1;
-  top: var(--space-3);
-  right: var(--space-3);
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   color: #fff;
   font-size: 0.8rem;
   font-weight: 700;
   line-height: 1;
+}
+
+/* Non-"Nyhed" badges stack down from the top-right corner. */
+.statusStack {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
 }
 
 .statusNew {
@@ -130,6 +139,29 @@
 
 .statusSoldOut {
   background: #7b3535;
+}
+
+.statusVariants {
+  background: var(--color-primary);
+}
+
+/* "Nyhed" is always pinned to the top-left corner with a richer treatment:
+   a soft gradient, a subtle shadow and a leading sparkle. Declared after the
+   colour classes so its gradient wins over .statusNew. */
+.statusCorner {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  background: linear-gradient(135deg, #3a9560 0%, #246b40 100%);
+  box-shadow: 0 2px 8px rgba(18, 74, 41, 0.4);
+  letter-spacing: 0.01em;
+}
+
+.statusCorner::before {
+  content: '✦';
+  margin-right: 0.3em;
+  font-size: 0.82em;
+  opacity: 0.95;
 }
 
 /* --- Info column -------------------------------------------------------- */
@@ -399,10 +431,7 @@
 }
 
 .relatedStatus {
-  position: absolute;
   z-index: 1;
-  top: 0.5rem;
-  right: 0.5rem;
   max-width: calc(100% - 1rem);
   padding: 0.25rem 0.48rem;
   border-radius: 999px;
@@ -413,6 +442,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Non-"Nyhed" badges stack down from the top-right corner. */
+.relatedStatusStack {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.28rem;
+  max-width: calc(100% - 1rem);
 }
 
 .relatedNew {
@@ -429,6 +471,16 @@
 
 .relatedVariants {
   background: var(--color-primary);
+}
+
+/* "Nyhed" pinned to the related card's top-left corner. Declared after
+   .relatedNew so its gradient wins. */
+.relatedNewCorner {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: linear-gradient(135deg, #3a9560 0%, #246b40 100%);
+  box-shadow: 0 1px 5px rgba(18, 74, 41, 0.4);
 }
 
 .relatedImage {
@@ -763,10 +815,18 @@
   }
 
   .statusBadge {
-    top: 0.6rem;
-    right: 0.6rem;
     padding: 0.28rem 0.52rem;
     font-size: 0.68rem;
+  }
+
+  .statusStack {
+    top: 0.6rem;
+    right: 0.6rem;
+  }
+
+  .statusCorner {
+    top: 0.6rem;
+    left: 0.6rem;
   }
 
   .info {

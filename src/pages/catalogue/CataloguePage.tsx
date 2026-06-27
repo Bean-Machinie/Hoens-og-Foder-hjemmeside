@@ -7,9 +7,11 @@ import {
   type CategoryId,
 } from '@/config/categories';
 import {
+  cardStatuses,
   defaultVariant,
   groupSlug,
   type ProductGroup,
+  type ProductStatus,
 } from './inventory';
 import { useInventory } from '@/context/InventoryContext';
 import { useCategoryFilter } from './useCategoryFilter';
@@ -19,6 +21,17 @@ import styles from './CataloguePage.module.css';
 
 /** Number of placeholder cards shown while the inventory is loading. */
 const SKELETON_COUNT = 8;
+
+/** Module class for a non-"Nyhed" badge (those sit in the top-right stack). */
+function cardBadgeClass(status: ProductStatus): string {
+  if (status === 'Bestillingsvare') {
+    return styles.orderOnly;
+  }
+  if (status === 'Flere Varianter') {
+    return styles.multipleVariants;
+  }
+  return styles.temporarilySoldOut;
+}
 
 /** Build a { categoryId: count } map across all catalogue entries (groups). */
 function countByCategory(groups: ProductGroup[]): Record<CategoryId, number> {
@@ -117,45 +130,45 @@ function CataloguePage() {
             <div className={styles.grid}>
               {filteredGroups.map((group) => {
                 // The cheapest in-stock variant drives the card: its image,
-                // its (lowest) price, and its status badge.
+                // its (lowest) price, and its status badges.
                 const lead = defaultVariant(group);
-                // If any row in the group is flagged "Flere Varianter", that
-                // badge takes priority; otherwise the lead variant's status.
-                const cardStatus = group.variants.some(
-                  (v) => v.status === 'Flere Varianter',
-                )
-                  ? 'Flere Varianter'
-                  : lead.status;
+                // A card can show several badges at once (e.g. "Nyhed" and
+                // "Flere Varianter"). "Nyhed" is pinned to the top-left corner;
+                // any other badges stack in the top-right corner.
+                const statuses = cardStatuses(group, lead);
+                const showNew = statuses.includes('Nyhed');
+                const otherStatuses = statuses.filter((s) => s !== 'Nyhed');
+                const soldOut = lead.statuses.includes('Midlertidigt udsolgt');
 
                 return (
                   <Link
                     key={group.key}
                     to={`/sortiment/${groupSlug(group)}`}
-                    state={{ catalogueHref, fromCatalogue: true }}
+                    state={{ catalogueHref, fromCatalogue: true, backDelta: -1 }}
                     className={styles.cardLink}
                     aria-label={group.title}
                   >
                     <article
                       className={`${styles.card} ${
-                        lead.status === 'Midlertidigt udsolgt'
-                          ? styles.soldOut
-                          : ''
+                        soldOut ? styles.soldOut : ''
                       }`}
                     >
-                      {cardStatus && (
-                        <span
-                          className={`${styles.status} ${
-                            cardStatus === 'Nyhed'
-                              ? styles.newProduct
-                              : cardStatus === 'Bestillingsvare'
-                                ? styles.orderOnly
-                                : cardStatus === 'Flere Varianter'
-                                  ? styles.multipleVariants
-                                  : styles.temporarilySoldOut
-                          }`}
-                        >
-                          {cardStatus}
+                      {showNew && (
+                        <span className={`${styles.status} ${styles.newProduct}`}>
+                          Nyhed
                         </span>
+                      )}
+                      {otherStatuses.length > 0 && (
+                        <div className={styles.statusStack}>
+                          {otherStatuses.map((s) => (
+                            <span
+                              key={s}
+                              className={`${styles.status} ${cardBadgeClass(s)}`}
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
                       )}
                       <img
                         className={styles.image}

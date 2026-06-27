@@ -7,18 +7,21 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 import placeholderImage from '@/assets/images/inventory/placeholder.webp';
 import ReserveAction from '@/components/ReserveAction/ReserveAction';
 import { SITE } from '@/config/site';
 import { useInventory } from '@/context/InventoryContext';
 import {
+  cardStatuses,
   defaultVariant,
   findGroupBySlug,
   groupSlug,
+  orderStatuses,
   type Product,
   type ProductGroup,
+  type ProductStatus,
 } from '@/pages/catalogue/inventory';
 import styles from './ItemDetailPage.module.css';
 
@@ -36,19 +39,35 @@ const RELATED_MAX_TOUCH_FLING_SPEED = 260;
 interface ItemDetailLocationState {
   catalogueHref?: string;
   fromCatalogue?: boolean;
+  /** Steps back through history to reach the catalogue entry (negative). */
+  backDelta?: number;
 }
 
-function statusClass(status: Product['status']): string {
+function statusClass(status: ProductStatus): string {
   if (status === 'Nyhed') {
     return styles.statusNew;
   }
   if (status === 'Bestillingsvare') {
     return styles.statusOrder;
   }
+  if (status === 'Flere Varianter') {
+    return styles.statusVariants;
+  }
   return styles.statusSoldOut;
 }
 
-function cardStatusClass(status: Product['status']): string {
+/**
+ * Badges shown in the detail media's top-right stack. "Nyhed" is rendered
+ * separately in the top-left corner, and "Flere Varianter" is omitted here
+ * because the variant selector already communicates it.
+ */
+function detailSideStatuses(product: Product): ProductStatus[] {
+  return orderStatuses(product.statuses).filter(
+    (status) => status !== 'Nyhed' && status !== 'Flere Varianter',
+  );
+}
+
+function cardStatusClass(status: ProductStatus): string {
   if (status === 'Nyhed') {
     return styles.relatedNew;
   }
@@ -73,12 +92,14 @@ function productWords(group: ProductGroup): Set<string> {
 }
 
 function RelatedProductCard({
+  backDelta,
   catalogueHref,
   decorative = false,
   group,
   onClick,
   onPointerDown,
 }: {
+  backDelta?: number;
   catalogueHref: string;
   decorative?: boolean;
   group: ProductGroup;
@@ -86,11 +107,10 @@ function RelatedProductCard({
   onPointerDown?: (event: ReactPointerEvent<HTMLAnchorElement>) => void;
 }) {
   const lead = defaultVariant(group);
-  const cardStatus = group.variants.some(
-    (variant) => variant.status === 'Flere Varianter',
-  )
-    ? 'Flere Varianter'
-    : lead.status;
+  const statuses = cardStatuses(group, lead);
+  const showNew = statuses.includes('Nyhed');
+  const otherStatuses = statuses.filter((s) => s !== 'Nyhed');
+  const soldOut = lead.statuses.includes('Midlertidigt udsolgt');
 
   return (
     <Link
@@ -100,19 +120,33 @@ function RelatedProductCard({
       onClick={onClick}
       onDragStart={(event) => event.preventDefault()}
       onPointerDown={onPointerDown}
-      state={{ catalogueHref, fromCatalogue: true }}
+      state={{ backDelta, catalogueHref, fromCatalogue: true }}
       tabIndex={decorative ? -1 : undefined}
       to={`/sortiment/${groupSlug(group)}`}
     >
       <article
         className={`${styles.relatedCard} ${
-          lead.status === 'Midlertidigt udsolgt' ? styles.relatedCardSoldOut : ''
+          soldOut ? styles.relatedCardSoldOut : ''
         }`}
       >
-        {cardStatus && (
-          <span className={`${styles.relatedStatus} ${cardStatusClass(cardStatus)}`}>
-            {cardStatus}
+        {showNew && (
+          <span
+            className={`${styles.relatedStatus} ${styles.relatedNew} ${styles.relatedNewCorner}`}
+          >
+            Nyhed
           </span>
+        )}
+        {otherStatuses.length > 0 && (
+          <div className={styles.relatedStatusStack}>
+            {otherStatuses.map((s) => (
+              <span
+                key={s}
+                className={`${styles.relatedStatus} ${cardStatusClass(s)}`}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
         )}
         <img
           alt={group.title}
@@ -368,9 +402,11 @@ function RelatedProductsLoop({
 void RelatedProductsLoop;
 
 function RelatedProductsCarousel({
+  backDelta,
   catalogueHref,
   sequence,
 }: {
+  backDelta?: number;
   catalogueHref: string;
   sequence: ProductGroup[];
 }) {
@@ -432,6 +468,7 @@ function RelatedProductsCarousel({
           <div className={styles.relatedTrack}>
             {sequence.map((item, index) => (
               <RelatedProductCard
+                backDelta={backDelta}
                 catalogueHref={catalogueHref}
                 group={item}
                 key={`${item.key}-${index}`}
@@ -453,6 +490,12 @@ function ItemDetailPage() {
   const catalogueHref =
     (location.state as ItemDetailLocationState | null)?.catalogueHref ??
     '/sortiment';
+  const navigate = useNavigate();
+  const backState = location.state as ItemDetailLocationState | null;
+  const backDelta =
+    typeof backState?.backDelta === 'number' ? backState.backDelta : undefined;
+  // A related product opened from here is one extra hop from the catalogue.
+  const childBackDelta = backDelta === undefined ? undefined : backDelta - 1;
   const [group, setGroup] = useState<ProductGroup | null>(null);
   const [selected, setSelected] = useState<Product | null>(null);
   const [status, setStatus] = useState<Status>('loading');
@@ -567,7 +610,16 @@ function ItemDetailPage() {
 
   return (
     <section className={`container ${styles.page}`}>
-      <Link to={catalogueHref} className={styles.back}>
+      <Link
+        to={catalogueHref}
+        className={styles.back}
+        onClick={(event) => {
+          if (backDelta !== undefined) {
+            event.preventDefault();
+            navigate(backDelta);
+          }
+        }}
+      >
         <span aria-hidden="true" className={styles.backArrow} />
         Tilbage til sortiment
       </Link>
@@ -608,13 +660,29 @@ function ItemDetailPage() {
         <article className={styles.layout}>
           <div
             className={`${styles.media} ${
-              selected.status === 'Midlertidigt udsolgt' ? styles.mediaSoldOut : ''
+              selected.statuses.includes('Midlertidigt udsolgt')
+                ? styles.mediaSoldOut
+                : ''
             }`}
           >
-            {selected.status && selected.status !== 'Flere Varianter' && (
-              <span className={`${styles.statusBadge} ${statusClass(selected.status)}`}>
-                {selected.status}
+            {selected.statuses.includes('Nyhed') && (
+              <span
+                className={`${styles.statusBadge} ${styles.statusNew} ${styles.statusCorner}`}
+              >
+                Nyhed
               </span>
+            )}
+            {detailSideStatuses(selected).length > 0 && (
+              <div className={styles.statusStack}>
+                {detailSideStatuses(selected).map((s) => (
+                  <span
+                    key={s}
+                    className={`${styles.statusBadge} ${statusClass(s)}`}
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
             )}
             <button
               aria-label={`Vis større billede af ${group.title}`}
@@ -642,7 +710,7 @@ function ItemDetailPage() {
           <div className={styles.info}>
             <header className={styles.header}>
               <p className={styles.category}>{group.category}</p>
-              <h1 className={styles.title}>{group.title}</h1>
+              <h1 className={styles.title}>{selected.title}</h1>
               {selected.price && <p className={styles.price}>{selected.price}</p>}
               {selected.barcode.trim() && (
                 <p className={styles.barcode}>
@@ -664,7 +732,8 @@ function ItemDetailPage() {
                 >
                   {group.variants.map((variant) => {
                     const active = variant === selected;
-                    const soldOut = variant.status === 'Midlertidigt udsolgt';
+                    const soldOut =
+                      variant.statuses.includes('Midlertidigt udsolgt');
                     return (
                       <button
                         key={variant.barcode || variant.title}
@@ -706,6 +775,7 @@ function ItemDetailPage() {
 
         {similarProducts.length > 0 && (
           <RelatedProductsCarousel
+            backDelta={childBackDelta}
             catalogueHref={catalogueHref}
             sequence={relatedSequence}
           />

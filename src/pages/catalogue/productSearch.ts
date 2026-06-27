@@ -61,10 +61,9 @@ const FUSE_OPTIONS: IFuseOptions<ProductGroup> = {
   minMatchCharLength: 2,
   keys: [
     { name: 'title', weight: 0.5 },
-    { name: 'category', weight: 0.2 },
+    { name: 'category', weight: 0.25 },
     { name: 'variants.variant', weight: 0.15 },
     { name: 'variants.description', weight: 0.1 },
-    { name: 'variants.status', weight: 0.05 },
   ],
 };
 
@@ -107,7 +106,9 @@ export function createProductIndex(groups: ProductGroup[]): ProductSearchIndex {
     const variantText = group.variants
       .map(
         (variant) =>
-          `${variant.variant} ${variant.description} ${variant.status} ${variant.price}`,
+          `${variant.variant} ${variant.description} ${variant.statuses.join(
+            ' ',
+          )} ${variant.price}`,
       )
       .join(' ');
 

@@ -17,7 +17,8 @@ export interface Product {
   barcode: string;
   description: string;
   price: string;
-  status: ProductStatus;
+  /** All statuses set for this row, e.g. ["Nyhed", "Flere Varianter"]. */
+  statuses: ProductStatus[];
   visible: boolean;
   imageUrl: string;
   /** Shared group name from the sheet's "Variantgruppe" column. '' = no group. */
@@ -72,7 +73,7 @@ function variantSortValue(variant: string): number {
 }
 
 function isInStock(product: Product): boolean {
-  return product.status !== 'Midlertidigt udsolgt';
+  return !product.statuses.includes('Midlertidigt udsolgt');
 }
 
 /**
@@ -143,8 +144,42 @@ export type ProductStatus =
   | 'Nyhed'
   | 'Bestillingsvare'
   | 'Midlertidigt udsolgt'
-  | 'Flere Varianter'
-  | '';
+  | 'Flere Varianter';
+
+/** Canonical order used whenever several badges are shown together. */
+export const STATUS_DISPLAY_ORDER: ProductStatus[] = [
+  'Nyhed',
+  'Flere Varianter',
+  'Bestillingsvare',
+  'Midlertidigt udsolgt',
+];
+
+/** Keep an arbitrary status list in the canonical display order, de-duped. */
+export function orderStatuses(
+  statuses: Iterable<ProductStatus>,
+): ProductStatus[] {
+  const set = new Set(statuses);
+  return STATUS_DISPLAY_ORDER.filter((status) => set.has(status));
+}
+
+/**
+ * Statuses to show on a catalogue card. Starts from the lead variant's own
+ * statuses and adds "Flere Varianter" when any variant in the group carries it.
+ */
+export function cardStatuses(
+  group: ProductGroup,
+  lead: Product,
+): ProductStatus[] {
+  const set = new Set<ProductStatus>(lead.statuses);
+  if (
+    group.variants.some((variant) =>
+      variant.statuses.includes('Flere Varianter'),
+    )
+  ) {
+    set.add('Flere Varianter');
+  }
+  return orderStatuses(set);
+}
 
 export function toWebsiteCategory(sheetCategory: string): string {
   return sheetCategory.trim();
@@ -235,16 +270,27 @@ function toBoolean(value: string): boolean {
   return value.trim().toUpperCase() === 'TRUE';
 }
 
-function toProductStatus(value: string): ProductStatus {
-  const normalized = value.trim().toLocaleLowerCase('da-DK');
-  const statuses: Record<string, ProductStatus> = {
-    nyhed: 'Nyhed',
-    bestillingsvare: 'Bestillingsvare',
-    'midlertidigt udsolgt': 'Midlertidigt udsolgt',
-    'flere varianter': 'Flere Varianter',
-  };
+const STATUS_LOOKUP: Record<string, ProductStatus> = {
+  nyhed: 'Nyhed',
+  bestillingsvare: 'Bestillingsvare',
+  'midlertidigt udsolgt': 'Midlertidigt udsolgt',
+  'flere varianter': 'Flere Varianter',
+};
 
-  return statuses[normalized] ?? '';
+/**
+ * Parse the sheet's "Status" cell, which may list several comma-separated
+ * statuses (e.g. "Nyhed, Flere Varianter"), into a de-duplicated array kept in
+ * canonical display order. Unknown values are ignored.
+ */
+export function parseStatuses(value: string): ProductStatus[] {
+  const found = new Set<ProductStatus>();
+  for (const part of value.split(',')) {
+    const status = STATUS_LOOKUP[part.trim().toLocaleLowerCase('da-DK')];
+    if (status) {
+      found.add(status);
+    }
+  }
+  return orderStatuses(found);
 }
 
 export async function fetchProducts(): Promise<Product[]> {
@@ -262,7 +308,7 @@ export async function fetchProducts(): Promise<Product[]> {
     barcode: row.Stregkode ?? '',
     price: row.Pris ?? '',
     description: row.Beskrivelse ?? '',
-    status: toProductStatus(row.Status ?? ''),
+    statuses: parseStatuses(row.Status ?? ''),
     visible: toBoolean(row.Synlighed ?? ''),
     imageUrl: toDirectImageUrl(row.imageUrl ?? ''),
     variantGroup: row.Variantgruppe ?? '',
