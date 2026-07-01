@@ -5,6 +5,7 @@ import diverseIcon from '@/assets/icons/diverse.svg';
 import farmFenceIcon from '@/assets/icons/farm-fence.svg';
 import featherIcon from '@/assets/icons/feather.svg';
 import heartIcon from '@/assets/icons/heart.svg';
+import kaninIcon from '@/assets/icons/kanin.svg';
 import smileIcon from '@/assets/icons/smile.svg';
 import wheatIcon from '@/assets/icons/wheat.svg';
 
@@ -44,6 +45,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Udstyr', href: '/sortiment?kategori=udstyr', icon: archiveIcon },
       { label: 'Sundhed', href: '/sortiment?kategori=sundhed', icon: heartIcon },
       { label: 'Stald', href: '/sortiment?kategori=stald', icon: farmFenceIcon },
+      { label: 'Kanin & smådyr', href: '/sortiment?kategori=kanin-smadyr', icon: kaninIcon },
       { label: 'Diverse', href: '/sortiment?kategori=diverse', icon: diverseIcon },
       { label: 'Vildtfugle', href: '/sortiment?kategori=vildtfugle', icon: featherIcon },
       { label: 'Hund & Kat', href: '/sortiment?kategori=hund-kat', icon: smileIcon },

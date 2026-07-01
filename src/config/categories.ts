@@ -2,6 +2,7 @@ import diverseImage from '@/assets/images/categories/diverse.webp';
 import foderImage from '@/assets/images/categories/foder.webp';
 import hundImage from '@/assets/images/categories/hund.webp';
 import hoensImage from '@/assets/images/categories/høns.webp';
+import kaninImage from '@/assets/images/categories/Kanin.png';
 import staldImage from '@/assets/images/categories/stald.webp';
 import sundhedImage from '@/assets/images/categories/sundhed.webp';
 import udstyrImage from '@/assets/images/categories/udstyr.webp';
@@ -40,6 +41,12 @@ export const PRODUCT_CATEGORIES = [
     name: 'Stald',
     href: '/sortiment?kategori=stald',
     image: staldImage,
+  },
+  {
+    id: 'kanin-smadyr',
+    name: 'Kanin & smådyr',
+    href: '/sortiment?kategori=kanin-smadyr',
+    image: kaninImage,
   },
   {
     id: 'diverse',
